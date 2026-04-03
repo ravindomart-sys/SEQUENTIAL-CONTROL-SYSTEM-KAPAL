@@ -1,0 +1,2928 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sequential Control System — Permesinan Kapal | Rafael Sukirno, CE</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@300;400;600;700;900&family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&family=Barlow:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --navy: #060d1f;
+  --navy-mid: #0a1428;
+  --navy-light: #0f1e3a;
+  --navy-card: #0d1830;
+  --orange: #ff6b00;
+  --orange-dim: #7a3200;
+  --orange-light: #ff9a4a;
+  --teal: #00c8d4;
+  --teal-dim: #006870;
+  --cyan: #00e5ff;
+  --gold: #f0a500;
+  --gold-dim: #7a5200;
+  --green: #00e676;
+  --green-dim: #005528;
+  --red: #ff4444;
+  --red-dim: #550000;
+  --white: #e8f4ff;
+  --gray: #4a6080;
+  --gray-light: #6a80a0;
+  --purple: #aa44ff;
+  --grid: rgba(255,107,0,0.05);
+  --border: rgba(255,107,0,0.2);
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{
+  background:var(--navy);
+  color:var(--white);
+  font-family:'Barlow',sans-serif;
+  font-size:16px;
+  overflow-x:hidden;
+  line-height:1.6;
+}
+body::before{
+  content:'';
+  position:fixed;inset:0;
+  background-image:
+    linear-gradient(var(--grid) 1px,transparent 1px),
+    linear-gradient(90deg,var(--grid) 1px,transparent 1px);
+  background-size:50px 50px;
+  pointer-events:none;z-index:0;
+}
+
+/* SIDEBAR */
+#sidebar{
+  position:fixed;left:0;top:0;bottom:0;
+  width:260px;
+  background:rgba(6,13,31,0.98);
+  border-right:2px solid var(--orange-dim);
+  z-index:200;
+  display:flex;flex-direction:column;
+  overflow-y:auto;
+}
+#sidebar::-webkit-scrollbar{width:4px;}
+#sidebar::-webkit-scrollbar-track{background:var(--navy);}
+#sidebar::-webkit-scrollbar-thumb{background:var(--orange-dim);}
+#sidebar-header{
+  padding:20px 18px 14px;
+  border-bottom:1px solid rgba(255,107,0,0.2);
+  background:linear-gradient(135deg,rgba(255,107,0,0.1),transparent);
+}
+.sb-logo{
+  font-family:'Orbitron',monospace;
+  font-size:11px;font-weight:900;
+  color:var(--orange);letter-spacing:2px;line-height:1.4;
+  text-transform:uppercase;
+}
+.sb-sub{
+  font-family:'Share Tech Mono',monospace;
+  font-size:8px;color:var(--gray);margin-top:5px;letter-spacing:1px;
+}
+#sidebar nav{padding:8px 0;flex:1;}
+.nav-group{
+  font-size:8px;color:var(--orange);letter-spacing:2px;
+  padding:12px 18px 4px;
+  font-family:'Orbitron',monospace;text-transform:uppercase;
+  border-top:1px solid rgba(255,107,0,0.1);margin-top:4px;
+}
+.nav-group:first-child{border-top:none;margin-top:0;}
+#sidebar nav a{
+  display:block;padding:8px 18px;
+  font-size:11px;font-weight:500;letter-spacing:0.5px;
+  color:var(--gray-light);text-decoration:none;
+  border-left:2px solid transparent;
+  transition:all 0.2s;
+  font-family:'Barlow Condensed',sans-serif;
+}
+#sidebar nav a:hover,#sidebar nav a.active{
+  color:var(--orange);border-left-color:var(--orange);
+  background:rgba(255,107,0,0.07);
+}
+#sidebar-footer{
+  padding:14px 18px;
+  border-top:1px solid rgba(255,107,0,0.15);
+  font-family:'Share Tech Mono',monospace;
+  font-size:8px;color:var(--teal-dim);line-height:1.8;
+}
+
+/* MAIN */
+#main{margin-left:260px;position:relative;z-index:1;}
+
+/* HERO */
+#hero{
+  min-height:100vh;
+  display:flex;flex-direction:column;justify-content:center;
+  padding:80px 70px 60px;
+  position:relative;
+  background:linear-gradient(135deg,var(--navy) 0%,var(--navy-light) 50%,rgba(255,107,0,0.06) 100%);
+  overflow:hidden;
+}
+#hero::before{
+  content:'';
+  position:absolute;right:-150px;top:50%;transform:translateY(-50%);
+  width:600px;height:600px;border-radius:50%;
+  border:1px solid rgba(255,107,0,0.1);
+  box-shadow:0 0 0 50px rgba(255,107,0,0.03),0 0 0 100px rgba(255,107,0,0.02),0 0 0 150px rgba(255,107,0,0.01);
+  pointer-events:none;
+}
+.hero-tag{
+  font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--orange);
+  letter-spacing:3px;margin-bottom:18px;text-transform:uppercase;
+}
+.hero-title{
+  font-family:'Orbitron',monospace;
+  font-size:clamp(28px,4vw,56px);font-weight:900;line-height:1.1;
+  color:var(--white);margin-bottom:10px;
+}
+.hero-title span{color:var(--orange);}
+.hero-subtitle{
+  font-size:18px;color:var(--gray-light);margin-bottom:28px;
+  font-weight:400;max-width:680px;line-height:1.7;
+}
+.hero-badges{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:40px;}
+.badge{
+  background:rgba(255,107,0,0.1);border:1px solid var(--orange-dim);
+  color:var(--orange);padding:5px 14px;
+  font-family:'Share Tech Mono',monospace;font-size:10px;
+  letter-spacing:1px;text-transform:uppercase;
+}
+.badge.teal{background:rgba(0,200,212,0.1);border-color:var(--teal-dim);color:var(--teal);}
+.badge.green{background:rgba(0,230,118,0.08);border-color:var(--green-dim);color:var(--green);}
+.badge.gold{background:rgba(240,165,0,0.1);border-color:var(--gold-dim);color:var(--gold);}
+
+.hero-stats{
+  display:grid;grid-template-columns:repeat(5,auto);
+  gap:0;width:fit-content;
+  border:1px solid var(--orange-dim);
+  position:relative;
+}
+.hero-stats::before{
+  content:'';position:absolute;inset:-4px;
+  border:1px solid rgba(255,107,0,0.15);
+  pointer-events:none;
+}
+.stat-box{padding:16px 24px;text-align:center;border-right:1px solid var(--orange-dim);}
+.stat-box:last-child{border-right:none;}
+.stat-num{font-family:'Orbitron',monospace;font-size:28px;font-weight:900;color:var(--orange);display:block;}
+.stat-label{font-size:9px;color:var(--gray);letter-spacing:1px;font-family:'Share Tech Mono',monospace;text-transform:uppercase;}
+.author-tag{margin-top:28px;font-family:'Share Tech Mono',monospace;font-size:12px;color:var(--gold);letter-spacing:2px;}
+
+/* SECTIONS */
+section{
+  padding:90px 70px;
+  border-bottom:1px solid rgba(255,107,0,0.1);
+  position:relative;
+}
+section:nth-child(even){background:rgba(10,20,40,0.4);}
+.section-header{margin-bottom:50px;}
+.section-tag{font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--orange);letter-spacing:3px;text-transform:uppercase;margin-bottom:10px;}
+.section-title{
+  font-family:'Orbitron',monospace;font-size:clamp(20px,2.4vw,34px);font-weight:700;
+  color:var(--white);border-left:4px solid var(--orange);padding-left:18px;
+}
+.section-desc{margin-top:14px;font-size:15px;color:var(--gray-light);max-width:760px;line-height:1.8;padding-left:22px;}
+
+/* CARDS */
+.card{
+  background:var(--navy-card);border:1px solid rgba(255,107,0,0.2);
+  padding:24px;position:relative;overflow:hidden;
+  transition:transform 0.2s,box-shadow 0.2s,border-color 0.2s;
+  animation:fadeUp 0.5s ease both;
+}
+.card:hover{
+  transform:translateY(-3px);
+  box-shadow:0 8px 32px rgba(255,107,0,0.12);
+  border-color:var(--orange);
+}
+.card::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:2px;
+  background:linear-gradient(90deg,var(--orange),transparent);
+}
+.card-icon{font-size:28px;margin-bottom:12px;display:block;}
+.card-title{
+  font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:700;
+  color:var(--white);letter-spacing:0.5px;margin-bottom:8px;
+}
+.card-sub{font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--orange);letter-spacing:1px;text-transform:uppercase;margin-bottom:10px;}
+.card-desc{font-size:14px;color:var(--gray-light);line-height:1.7;}
+
+/* INFO BOXES */
+.info-box{border:1px solid;padding:22px 26px;margin-top:22px;}
+.info-box.orange{border-color:rgba(255,107,0,0.3);background:rgba(255,107,0,0.04);}
+.info-box.teal{border-color:rgba(0,200,212,0.3);background:rgba(0,200,212,0.04);}
+.info-box.gold{border-color:rgba(240,165,0,0.3);background:rgba(240,165,0,0.04);}
+.info-box.red{border-color:rgba(255,68,68,0.3);background:rgba(255,68,68,0.04);}
+.info-box.green{border-color:rgba(0,230,118,0.25);background:rgba(0,230,118,0.04);}
+.info-box-tag{
+  font-family:'Orbitron',monospace;font-size:9px;letter-spacing:2px;
+  text-transform:uppercase;margin-bottom:12px;
+}
+.info-box.orange .info-box-tag{color:var(--orange);}
+.info-box.teal   .info-box-tag{color:var(--teal);}
+.info-box.gold   .info-box-tag{color:var(--gold);}
+.info-box.red    .info-box-tag{color:var(--red);}
+.info-box.green  .info-box-tag{color:var(--green);}
+.info-box p,.info-box li{font-size:14px;color:var(--gray-light);line-height:1.8;}
+.info-box strong{color:var(--white);}
+.info-box ul{padding-left:18px;}
+
+/* FORMULA */
+.formula{
+  background:rgba(0,0,0,0.4);border:1px solid rgba(255,107,0,0.2);
+  padding:12px 16px;margin-top:12px;
+  font-family:'Share Tech Mono',monospace;font-size:12px;color:var(--orange-light);
+  letter-spacing:1px;line-height:1.8;
+}
+
+/* GRID LAYOUTS */
+.grid-2{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:24px;}
+.grid-3{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:20px;}
+.grid-4{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:18px;}
+
+/* SEQUENTIAL FLOWCHART */
+.seq-flow{
+  display:flex;align-items:stretch;flex-wrap:wrap;
+  gap:0;margin:32px auto;max-width:980px;
+}
+.seq-step{
+  flex:1;min-width:140px;
+  background:var(--navy-card);
+  border:1px solid rgba(255,107,0,0.25);
+  padding:20px 14px;text-align:center;
+  position:relative;cursor:pointer;
+  transition:all 0.2s;
+}
+.seq-step:hover,.seq-step.active{
+  background:rgba(255,107,0,0.1);
+  border-color:var(--orange);
+  box-shadow:0 0 20px rgba(255,107,0,0.2);
+}
+.seq-step:not(:last-child)::after{
+  content:'▶';position:absolute;right:-14px;top:50%;transform:translateY(-50%);
+  color:var(--orange);font-size:16px;z-index:2;line-height:1;
+}
+.seq-num{
+  font-family:'Orbitron',monospace;font-size:24px;font-weight:900;
+  color:var(--orange);display:block;margin-bottom:6px;
+}
+.seq-name{
+  font-family:'Share Tech Mono',monospace;font-size:10px;
+  color:var(--white);letter-spacing:1px;text-transform:uppercase;
+  margin-bottom:6px;display:block;
+}
+.seq-desc{font-size:11px;color:var(--gray-light);line-height:1.5;}
+.seq-detail{
+  font-family:'Share Tech Mono',monospace;font-size:9px;
+  color:var(--orange);margin-top:6px;display:block;
+}
+
+/* PLC CYCLE ANIMATION */
+.plc-cycle-anim{
+  position:relative;display:flex;
+  align-items:stretch;justify-content:center;flex-wrap:wrap;
+  gap:0;margin:28px auto;max-width:900px;
+}
+.cycle-box{
+  flex:1;min-width:150px;
+  background:var(--navy-card);border:1px solid rgba(0,200,212,0.25);
+  padding:20px 14px;text-align:center;position:relative;
+}
+.cycle-box:not(:last-child)::after{
+  content:'→';position:absolute;right:-14px;top:50%;transform:translateY(-50%);
+  color:var(--teal);font-size:20px;z-index:2;
+  font-family:'Share Tech Mono',monospace;
+}
+.cycle-box.anim-active{
+  border-color:var(--teal);background:rgba(0,200,212,0.08);
+  box-shadow:0 0 20px rgba(0,200,212,0.15);
+}
+.cycle-num2{font-family:'Orbitron',monospace;font-size:22px;font-weight:900;color:var(--teal);display:block;margin-bottom:6px;}
+.cycle-name2{font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--white);letter-spacing:1px;text-transform:uppercase;margin-bottom:6px;display:block;}
+.cycle-desc2{font-size:12px;color:var(--gray-light);line-height:1.6;}
+.cycle-ms{font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--gold);margin-top:6px;display:block;}
+
+/* COMPARISON TABLE */
+.cmp-table{width:100%;border-collapse:collapse;font-size:14px;}
+.cmp-table thead th{
+  background:var(--navy-mid);border:1px solid rgba(255,107,0,0.25);
+  padding:12px 16px;color:var(--orange);
+  font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;letter-spacing:1px;
+  text-transform:uppercase;text-align:left;
+}
+.cmp-table tbody td{
+  border:1px solid rgba(255,255,255,0.07);
+  padding:11px 16px;color:var(--gray-light);
+  font-size:13px;vertical-align:top;
+}
+.cmp-table tbody tr:hover td{background:rgba(255,107,0,0.04);}
+.cmp-table tbody td:first-child{color:var(--white);font-weight:600;font-family:'Barlow Condensed',sans-serif;font-size:15px;white-space:nowrap;}
+.cmp-table .row-seq td{border-left:3px solid var(--orange)!important;}
+.cmp-table .row-pid td{border-left:3px solid var(--teal)!important;}
+
+/* HIERARCHY */
+.hier-wrap{display:flex;flex-direction:column;align-items:center;gap:0;margin:32px auto;max-width:900px;}
+.hier-row{width:100%;}
+.hier-box{
+  border:2px solid;padding:18px 26px;text-align:center;
+  position:relative;margin:0 auto;
+  transition:box-shadow 0.2s;cursor:pointer;
+}
+.hier-box:hover{box-shadow:0 0 30px rgba(255,107,0,0.15);}
+.hier-box.l3{border-color:var(--gold);background:rgba(240,165,0,0.06);max-width:600px;}
+.hier-box.l2{border-color:var(--orange);background:rgba(255,107,0,0.06);max-width:700px;}
+.hier-box.l1{border-color:var(--teal);background:rgba(0,200,212,0.06);max-width:800px;}
+.hier-box.l0{border-color:var(--gray);background:rgba(74,96,128,0.1);max-width:900px;}
+.hier-title{font-family:'Orbitron',monospace;font-size:12px;font-weight:700;letter-spacing:2px;}
+.hier-box.l3 .hier-title{color:var(--gold);}
+.hier-box.l2 .hier-title{color:var(--orange);}
+.hier-box.l1 .hier-title{color:var(--teal);}
+.hier-box.l0 .hier-title{color:var(--gray-light);}
+.hier-sub{font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--gray);margin-top:5px;letter-spacing:1px;}
+.hier-arrow{text-align:center;font-size:24px;color:var(--orange-dim);padding:5px 0;font-family:'Share Tech Mono',monospace;line-height:1;}
+.hier-items{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-top:10px;}
+.hier-item{
+  background:rgba(0,0,0,0.3);border:1px solid rgba(255,255,255,0.1);
+  padding:3px 10px;font-family:'Share Tech Mono',monospace;font-size:8px;
+  color:rgba(255,255,255,0.5);letter-spacing:0.5px;
+}
+
+/* LADDER DIAGRAM */
+.ladder{
+  background:#050c1a;border:1px solid rgba(255,107,0,0.3);
+  padding:24px;font-family:'Share Tech Mono',monospace;
+  font-size:12px;overflow-x:auto;
+}
+.ld-rung{display:flex;align-items:center;margin-bottom:16px;gap:0;}
+.ld-rail{width:4px;background:var(--orange-dim);flex-shrink:0;align-self:stretch;}
+.ld-wire{height:2px;background:var(--orange-dim);flex:1;min-width:20px;}
+.ld-contact{
+  display:inline-flex;flex-direction:column;align-items:center;
+  padding:0 8px;cursor:default;
+}
+.ld-contact-sym{
+  font-size:14px;color:var(--teal);border:1px solid var(--teal-dim);
+  padding:4px 8px;min-width:50px;text-align:center;font-size:11px;
+  background:rgba(0,200,212,0.06);
+}
+.ld-contact-label{font-size:8px;color:var(--gray);margin-top:3px;letter-spacing:1px;}
+.ld-coil{
+  display:inline-flex;flex-direction:column;align-items:center;
+  padding:0 8px;margin-left:auto;cursor:default;
+}
+.ld-coil-sym{
+  font-size:14px;color:var(--orange);border:2px solid var(--orange-dim);
+  padding:4px 8px;min-width:50px;text-align:center;font-size:11px;
+  border-radius:50%;background:rgba(255,107,0,0.08);
+}
+.ld-coil-label{font-size:8px;color:var(--gray);margin-top:3px;letter-spacing:1px;}
+.ld-comment{color:var(--gray);font-size:10px;padding:2px 12px;letter-spacing:1px;}
+
+/* SFC DIAGRAM */
+.sfc-wrap{display:flex;flex-direction:column;align-items:center;gap:0;max-width:500px;margin:0 auto;}
+.sfc-step{
+  background:var(--navy-card);border:2px solid var(--orange-dim);
+  padding:14px 28px;text-align:center;width:220px;
+  position:relative;cursor:pointer;transition:all 0.2s;
+}
+.sfc-step:hover,.sfc-step.active{
+  border-color:var(--orange);background:rgba(255,107,0,0.1);
+  box-shadow:0 0 20px rgba(255,107,0,0.2);
+}
+.sfc-step.initial{border-color:var(--gold);background:rgba(240,165,0,0.06);}
+.sfc-step-num{font-family:'Orbitron',monospace;font-size:11px;color:var(--orange);display:block;margin-bottom:3px;}
+.sfc-step-name{font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--white);letter-spacing:1px;}
+.sfc-action{font-size:10px;color:var(--gray-light);margin-top:4px;}
+.sfc-arrow{color:var(--orange-dim);font-size:22px;padding:3px 0;line-height:1;}
+.sfc-trans{
+  display:flex;align-items:center;gap:12px;padding:5px 0;
+}
+.sfc-trans-line{height:1px;background:var(--orange-dim);width:30px;}
+.sfc-trans-cond{
+  background:rgba(255,107,0,0.08);border:1px solid var(--orange-dim);
+  padding:3px 10px;font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--orange);
+  letter-spacing:1px;
+}
+.sfc-parallel{display:flex;gap:20px;justify-content:center;width:100%;position:relative;}
+.sfc-parallel::before{
+  content:'';position:absolute;top:0;left:10%;right:10%;height:2px;background:var(--orange-dim);
+}
+
+/* STUDY CASE ACCORDION */
+.case-item{
+  background:var(--navy-card);border:1px solid rgba(255,107,0,0.2);
+  margin-bottom:12px;overflow:hidden;
+}
+.case-header{
+  padding:18px 22px;cursor:pointer;
+  display:flex;align-items:center;justify-content:space-between;
+  transition:background 0.2s;
+}
+.case-header:hover{background:rgba(255,107,0,0.07);}
+.case-title{
+  font-family:'Barlow Condensed',sans-serif;font-size:17px;font-weight:700;
+  color:var(--white);display:flex;align-items:center;gap:12px;
+}
+.case-badge{
+  font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:1px;
+  padding:3px 8px;border:1px solid;text-transform:uppercase;
+}
+.case-badge.error{border-color:var(--red-dim);color:var(--red);}
+.case-badge.warn{border-color:var(--gold-dim);color:var(--gold);}
+.case-chevron{
+  font-size:18px;color:var(--orange);transition:transform 0.3s;
+}
+.case-item.open .case-chevron{transform:rotate(180deg);}
+.case-body{
+  display:none;padding:0 22px 22px;border-top:1px solid rgba(255,107,0,0.1);
+}
+.case-item.open .case-body{display:block;animation:fadeUp 0.3s ease;}
+
+/* FAULT TREE */
+.fault-tree{font-family:'Share Tech Mono',monospace;font-size:11px;}
+.fault-node{
+  background:var(--navy-mid);border:1px solid;
+  padding:8px 14px;display:inline-block;margin:4px;
+  cursor:default;transition:all 0.2s;
+}
+.fault-node:hover{filter:brightness(1.3);}
+.fault-node.root{border-color:var(--red);color:var(--red);background:rgba(255,68,68,0.08);}
+.fault-node.cause{border-color:var(--orange-dim);color:var(--orange-light);}
+.fault-node.sensor{border-color:var(--teal-dim);color:var(--teal);}
+.fault-node.action{border-color:var(--green-dim);color:var(--green);}
+
+/* QUIZ */
+.quiz-card{
+  background:var(--navy-card);border:1px solid rgba(255,107,0,0.2);
+  padding:26px;margin-bottom:16px;animation:fadeUp 0.4s ease both;
+}
+.quiz-q{font-size:16px;font-weight:600;color:var(--white);margin-bottom:16px;}
+.quiz-q span{color:var(--orange);font-family:'Orbitron',monospace;font-size:13px;}
+.quiz-options{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px;}
+.quiz-opt{
+  background:var(--navy-mid);border:1px solid rgba(255,255,255,0.1);
+  padding:12px 16px;cursor:pointer;
+  font-size:13px;color:var(--gray-light);
+  transition:all 0.2s;text-align:left;
+  font-family:'Barlow',sans-serif;
+}
+.quiz-opt:hover{border-color:var(--orange);color:var(--white);background:rgba(255,107,0,0.08);}
+.quiz-opt.correct{border-color:var(--green);color:var(--green);background:rgba(0,230,118,0.08);}
+.quiz-opt.wrong{border-color:var(--red);color:var(--red);background:rgba(255,68,68,0.08);}
+.quiz-feedback{
+  margin-top:12px;padding:10px 14px;
+  font-size:13px;font-family:'Share Tech Mono',monospace;letter-spacing:0.5px;
+  display:none;
+}
+.quiz-feedback.show{display:block;}
+.quiz-feedback.ok{background:rgba(0,230,118,0.08);border:1px solid var(--green-dim);color:var(--green);}
+.quiz-feedback.nope{background:rgba(255,68,68,0.08);border:1px solid var(--red-dim);color:var(--red);}
+
+/* DRAG AND DROP SEQUENCE */
+.dnd-area{
+  background:var(--navy-mid);border:1px solid rgba(255,107,0,0.2);
+  padding:20px;margin-bottom:16px;min-height:70px;
+  display:flex;flex-wrap:wrap;gap:10px;align-items:center;
+}
+.dnd-item{
+  background:var(--navy-card);border:1px solid rgba(255,107,0,0.3);
+  padding:10px 16px;cursor:grab;
+  font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--white);
+  letter-spacing:1px;transition:all 0.2s;user-select:none;
+}
+.dnd-item:hover{border-color:var(--orange);color:var(--orange);}
+.dnd-item.dragging{opacity:0.4;cursor:grabbing;}
+.dnd-label{font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--orange);letter-spacing:2px;text-transform:uppercase;margin-bottom:10px;}
+
+/* SIMULATOR */
+.sim-wrap{background:var(--navy-mid);border:1px solid rgba(255,107,0,0.25);padding:24px;}
+.sim-title{font-family:'Orbitron',monospace;font-size:13px;color:var(--orange);letter-spacing:2px;margin-bottom:20px;}
+.sim-steps{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px;}
+.sim-step{
+  padding:8px 14px;border:1px solid rgba(255,107,0,0.2);
+  font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--gray);
+  letter-spacing:1px;text-transform:uppercase;transition:all 0.3s;
+  position:relative;
+}
+.sim-step.done{border-color:var(--green);color:var(--green);background:rgba(0,230,118,0.07);}
+.sim-step.current{border-color:var(--orange);color:var(--orange);background:rgba(255,107,0,0.1);animation:pulse-border 1s ease infinite;}
+.sim-step.pending{border-color:rgba(255,255,255,0.1);color:rgba(255,255,255,0.3);}
+@keyframes pulse-border{
+  0%,100%{box-shadow:0 0 0 0 rgba(255,107,0,0.3);}
+  50%{box-shadow:0 0 0 5px rgba(255,107,0,0);}
+}
+.sim-log{
+  background:#050c1a;border:1px solid rgba(255,107,0,0.15);
+  padding:14px;height:140px;overflow-y:auto;
+  font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--gray-light);
+  line-height:1.8;
+}
+.sim-log .log-ok{color:var(--green);}
+.sim-log .log-warn{color:var(--gold);}
+.sim-log .log-err{color:var(--red);}
+.sim-btns{display:flex;gap:10px;margin-top:14px;flex-wrap:wrap;}
+.btn{
+  background:transparent;border:1px solid;padding:10px 20px;
+  cursor:pointer;font-family:'Share Tech Mono',monospace;font-size:10px;
+  letter-spacing:1px;text-transform:uppercase;transition:all 0.2s;
+}
+.btn-orange{border-color:var(--orange);color:var(--orange);}
+.btn-orange:hover{background:rgba(255,107,0,0.12);}
+.btn-green{border-color:var(--green);color:var(--green);}
+.btn-green:hover{background:rgba(0,230,118,0.08);}
+.btn-red{border-color:var(--red);color:var(--red);}
+.btn-red:hover{background:rgba(255,68,68,0.08);}
+.btn-teal{border-color:var(--teal);color:var(--teal);}
+.btn-teal:hover{background:rgba(0,200,212,0.08);}
+.btn:disabled{opacity:0.35;cursor:not-allowed;}
+
+/* REFERENCE LINKS */
+.ref-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px;}
+.ref-card{
+  background:var(--navy-card);border:1px solid rgba(255,255,255,0.08);
+  padding:18px;transition:border-color 0.2s;
+}
+.ref-card:hover{border-color:var(--orange);}
+.ref-card a{text-decoration:none;}
+.ref-title{font-size:14px;font-weight:600;color:var(--white);margin-bottom:4px;}
+.ref-org{font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--orange);letter-spacing:1px;margin-bottom:8px;}
+.ref-desc{font-size:12px;color:var(--gray-light);line-height:1.6;}
+.ref-link{
+  display:inline-block;margin-top:10px;
+  font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--teal);
+  letter-spacing:1px;text-decoration:none;border-bottom:1px solid var(--teal-dim);
+  transition:color 0.2s;
+}
+.ref-link:hover{color:var(--orange);}
+
+/* SUMMARY STATS */
+.summary-item{
+  background:var(--navy-card);border:1px solid rgba(255,107,0,0.15);
+  padding:14px 18px;display:flex;align-items:center;gap:12px;
+}
+.sum-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
+.sum-name{font-size:13px;color:var(--white);font-weight:600;display:block;}
+.sum-sub{font-size:11px;color:var(--gray-light);}
+.sum-count{font-family:'Orbitron',monospace;font-size:22px;font-weight:700;color:var(--orange);margin-left:auto;}
+
+/* POPUP / MODAL */
+.modal-overlay{
+  position:fixed;inset:0;background:rgba(0,0,0,0.8);backdrop-filter:blur(4px);
+  z-index:500;display:flex;align-items:center;justify-content:center;
+  padding:20px;opacity:0;pointer-events:none;transition:opacity 0.3s;
+}
+.modal-overlay.open{opacity:1;pointer-events:all;}
+.modal{
+  background:var(--navy-mid);border:1px solid var(--orange-dim);
+  max-width:680px;width:100%;max-height:80vh;overflow-y:auto;
+  animation:slideIn 0.3s ease;
+  position:relative;
+}
+@keyframes slideIn{from{transform:translateY(20px);opacity:0;}to{transform:translateY(0);opacity:1;}}
+.modal-header{
+  padding:20px 24px 16px;border-bottom:1px solid rgba(255,107,0,0.15);
+  display:flex;align-items:center;justify-content:space-between;
+  background:linear-gradient(90deg,rgba(255,107,0,0.08),transparent);
+}
+.modal-title{font-family:'Orbitron',monospace;font-size:14px;color:var(--orange);letter-spacing:1px;}
+.modal-close{
+  background:transparent;border:1px solid rgba(255,107,0,0.3);
+  color:var(--orange);width:30px;height:30px;cursor:pointer;
+  font-size:16px;display:flex;align-items:center;justify-content:center;
+  transition:all 0.2s;
+}
+.modal-close:hover{background:rgba(255,107,0,0.15);}
+.modal-body{padding:20px 24px;}
+.modal-body p,.modal-body li{font-size:14px;color:var(--gray-light);line-height:1.8;}
+.modal-body strong{color:var(--white);}
+.modal-body h4{font-family:'Orbitron',monospace;font-size:11px;color:var(--teal);margin:14px 0 8px;letter-spacing:1px;}
+.modal-body ul{padding-left:18px;margin-bottom:10px;}
+
+/* PROGRESS BAR */
+.progress-bar{background:rgba(255,107,0,0.1);height:4px;margin-top:6px;}
+.progress-fill{height:100%;background:var(--orange);transition:width 0.5s ease;}
+
+/* PILL */
+.pill{
+  display:inline-block;padding:2px 8px;border:1px solid;
+  font-family:'Share Tech Mono',monospace;font-size:8px;letter-spacing:1px;
+  text-transform:uppercase;white-space:nowrap;
+}
+.pill-orange{border-color:var(--orange-dim);color:var(--orange);background:rgba(255,107,0,0.08);}
+.pill-teal{border-color:var(--teal-dim);color:var(--teal);background:rgba(0,200,212,0.08);}
+.pill-green{border-color:var(--green-dim);color:var(--green);background:rgba(0,230,118,0.08);}
+.pill-red{border-color:var(--red-dim);color:var(--red);background:rgba(255,68,68,0.08);}
+.pill-gold{border-color:var(--gold-dim);color:var(--gold);background:rgba(240,165,0,0.08);}
+.pill-purple{border-color:#440055;color:var(--purple);background:rgba(170,68,255,0.07);}
+
+/* FOOTER */
+#footer{
+  background:var(--navy-mid);border-top:2px solid var(--orange-dim);
+  padding:48px 70px;text-align:center;
+}
+.footer-logo{font-family:'Orbitron',monospace;font-size:14px;font-weight:900;color:var(--orange);letter-spacing:3px;margin-bottom:10px;}
+.footer-author{font-family:'Share Tech Mono',monospace;font-size:14px;color:var(--gold);letter-spacing:2px;}
+.footer-inst{font-size:13px;color:var(--gray-light);margin-top:8px;line-height:1.8;}
+.footer-line{width:100px;height:1px;background:var(--orange-dim);margin:18px auto;}
+
+/* ANIMATIONS */
+@keyframes fadeUp{from{opacity:0;transform:translateY(20px);}to{opacity:1;transform:translateY(0);}}
+@keyframes scanline{0%{top:-2px;}100%{top:100%;}}
+.scan-container{position:relative;overflow:hidden;}
+.scan-container::after{
+  content:'';position:absolute;left:0;right:0;height:2px;
+  background:linear-gradient(90deg,transparent,rgba(255,107,0,0.4),transparent);
+  animation:scanline 3s linear infinite;pointer-events:none;
+}
+
+/* STEPS */
+.steps{display:flex;flex-direction:column;gap:14px;}
+.step-item{
+  display:flex;gap:16px;align-items:flex-start;
+  background:var(--navy-card);border:1px solid rgba(255,107,0,0.15);
+  padding:18px 20px;
+}
+.step-num2{
+  font-family:'Orbitron',monospace;font-size:24px;font-weight:900;
+  color:var(--orange);flex-shrink:0;min-width:40px;
+}
+.step-title2{font-family:'Share Tech Mono',monospace;font-size:12px;color:var(--white);letter-spacing:1px;text-transform:uppercase;margin-bottom:6px;}
+.step-desc2{font-size:13px;color:var(--gray-light);line-height:1.7;}
+.step-detail2{font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--orange-light);margin-top:7px;line-height:1.8;}
+
+/* HYBRID DIAGRAM */
+.hybrid-box{
+  display:flex;flex-direction:column;align-items:center;gap:0;
+  background:var(--navy-card);border:1px solid rgba(255,107,0,0.2);
+  padding:20px;flex:1;min-width:200px;
+  transition:border-color 0.2s;cursor:pointer;
+}
+.hybrid-box:hover{border-color:var(--orange);}
+.hybrid-icon{font-size:32px;margin-bottom:10px;}
+.hybrid-title{font-family:'Orbitron',monospace;font-size:11px;font-weight:700;letter-spacing:1px;margin-bottom:6px;text-align:center;}
+.hybrid-box.seq .hybrid-title{color:var(--orange);}
+.hybrid-box.pid .hybrid-title{color:var(--teal);}
+.hybrid-box.both .hybrid-title{color:var(--gold);}
+.hybrid-desc{font-size:12px;color:var(--gray-light);line-height:1.6;text-align:center;}
+
+/* MOBILE */
+@media(max-width:960px){
+  #sidebar{width:0;overflow:hidden;}
+  #main{margin-left:0;}
+  section,#hero{padding:50px 20px;}
+  .hero-stats{grid-template-columns:repeat(3,auto);}
+  .grid-2,.grid-3,.grid-4{grid-template-columns:1fr;}
+  .seq-flow,.plc-cycle-anim{flex-direction:column;}
+  .seq-step:not(:last-child)::after{content:'▼';right:auto;left:50%;top:auto;bottom:-18px;transform:translateX(-50%);}
+  .cycle-box:not(:last-child)::after{content:'↓';right:auto;left:50%;top:auto;bottom:-18px;transform:translateX(-50%);}
+  #footer{padding:40px 20px;}
+}
+
+/* TOOLTIP */
+[data-tip]{position:relative;cursor:help;}
+[data-tip]::after{
+  content:attr(data-tip);
+  position:absolute;bottom:calc(100% + 8px);left:50%;transform:translateX(-50%);
+  background:var(--navy-mid);border:1px solid var(--orange-dim);
+  color:var(--white);padding:6px 10px;font-size:11px;
+  font-family:'Share Tech Mono',monospace;white-space:nowrap;letter-spacing:0.5px;
+  opacity:0;pointer-events:none;transition:opacity 0.2s;z-index:100;
+}
+[data-tip]:hover::after{opacity:1;}
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<div id="sidebar">
+  <div id="sidebar-header">
+    <div class="sb-logo">Sequential<br>Control Ship</div>
+    <div class="sb-sub">// SEMESTER IV — TEKNIKA | v1.0</div>
+  </div>
+  <nav>
+    <div class="nav-group">Navigasi</div>
+    <a href="#hero" class="active">⊞ Overview</a>
+    <div class="nav-group">Teori Dasar</div>
+    <a href="#sec-intro">① Pengantar</a>
+    <a href="#sec-sequential">② Sequential Control</a>
+    <a href="#sec-compare">③ Sequential vs PID</a>
+    <div class="nav-group">PLC & Otomasi</div>
+    <a href="#sec-plc-logic">④ PLC & Sequential</a>
+    <a href="#sec-plc-cycle">⑤ Siklus Kerja PLC</a>
+    <a href="#sec-hierarchy">⑥ Hierarki Otomasi</a>
+    <div class="nav-group">Implementasi</div>
+    <a href="#sec-examples">⑦ Contoh di Kapal</a>
+    <a href="#sec-hybrid">⑧ Sequential + PID</a>
+    <a href="#sec-actuator">⑨ Aktuator & Starter</a>
+    <div class="nav-group">Studi Kasus</div>
+    <a href="#sec-cases">⑩ Studi Kasus</a>
+    <div class="nav-group">Latihan</div>
+    <a href="#sec-interactive">⑪ Latihan Interaktif</a>
+    <a href="#sec-summary">⑫ Kesimpulan</a>
+    <a href="#sec-references">⑬ Referensi</a>
+  </nav>
+  <div id="sidebar-footer">
+    Rafael Sukirno, CE<br>
+    Politeknik Pelayaran Surabaya<br>
+    Universitas Hang Tuah Surabaya<br>
+    © 2025 — v1.0
+  </div>
+</div>
+
+<!-- MAIN -->
+<div id="main">
+
+<!-- HERO -->
+<section id="hero">
+  <div class="hero-tag">// MODUL — SEQUENTIAL CONTROL SYSTEM + INTEGRASI PLC PERMESINAN KAPAL</div>
+  <h1 class="hero-title">SHIP<br><span>SEQUENTIAL</span><br>CONTROL</h1>
+  <p class="hero-subtitle">Dari Logic Step hingga Integrasi IAS/DCS — memahami sistem kontrol sekuensial, PLC, dan otomasi permesinan kapal secara menyeluruh untuk taruna Teknika</p>
+  <div class="hero-badges">
+    <span class="badge">D-III / D-IV Teknika</span>
+    <span class="badge gold">Semester IV</span>
+    <span class="badge teal">Sequential + PID</span>
+    <span class="badge green">50 Sistem Kapal</span>
+    <span class="badge">PLC / IAS / DCS</span>
+  </div>
+  <div class="hero-stats scan-container">
+    <div class="stat-box"><span class="stat-num">12</span><span class="stat-label">Modul Belajar</span></div>
+    <div class="stat-box"><span class="stat-num">4</span><span class="stat-label">Studi Kasus</span></div>
+    <div class="stat-box"><span class="stat-num">3</span><span class="stat-label">Level Otomasi</span></div>
+    <div class="stat-box"><span class="stat-num">10</span><span class="stat-label">Soal Quiz</span></div>
+    <div class="stat-box"><span class="stat-num">5</span><span class="stat-label">Simulasi</span></div>
+  </div>
+  <div class="author-tag">▸ Rafael Sukirno, CE — Instruktur Marine Engineering</div>
+</section>
+
+<!-- SECTION 1: PENGANTAR -->
+<section id="sec-intro">
+  <div class="section-header">
+    <div class="section-tag">// 01 — PENGANTAR</div>
+    <h2 class="section-title">Mengapa Sistem Kontrol Otomatis di Kapal?</h2>
+    <p class="section-desc">Kapal modern mengoperasikan ratusan parameter secara simultan. Tanpa sistem kontrol otomatis, engineer harus terus-menerus memonitor dan menyesuaikan setiap parameter — tidak mungkin dilakukan manusia sendiri selama 24 jam berlayar.</p>
+  </div>
+
+  <div class="grid-4" style="margin-bottom:32px;">
+    <div class="card" style="animation-delay:0s">
+      <span class="card-icon">⚙️</span>
+      <div class="card-sub">Efisiensi</div>
+      <div class="card-title">Operasi Optimal</div>
+      <p class="card-desc">Kontrol otomatis menjaga parameter pada titik efisiensi terbaik — bahan bakar hemat, output maksimal, usia mesin lebih panjang. Fuel injection butuh presisi ±0.1 ms.</p>
+    </div>
+    <div class="card" style="animation-delay:0.1s">
+      <span class="card-icon">🛡️</span>
+      <div class="card-sub">SOLAS Compliance</div>
+      <div class="card-title">Keselamatan Kapal</div>
+      <p class="card-desc">SOLAS Chapter II-1 mewajibkan alarm & shutdown otomatis. Respons manusia (3–10 detik) terlalu lambat mencegah kerusakan fatal dibanding PLC (10–100 ms).</p>
+    </div>
+    <div class="card" style="animation-delay:0.2s">
+      <span class="card-icon">🌍</span>
+      <div class="card-sub">MARPOL / IMO Tier III</div>
+      <div class="card-title">Regulasi Emisi</div>
+      <p class="card-desc">MARPOL Annex VI memerlukan kontrol real-time scrubber (pH), EGR valve, dan SCR untuk memenuhi batas NOx/SOx. Hanya otomasi yang mampu melakukan ini.</p>
+    </div>
+    <div class="card" style="animation-delay:0.3s">
+      <span class="card-icon">📡</span>
+      <div class="card-sub">IAS / SCADA</div>
+      <div class="card-title">Integrasi Terpusat</div>
+      <p class="card-desc">IAS mengumpulkan data 200+ parameter ke satu layar di ECR dan bridge. Engineer memantau seluruh kapal tanpa harus turun ke engine room.</p>
+    </div>
+  </div>
+
+  <!-- Konsep Dasar -->
+  <div style="margin-bottom:28px;">
+    <div style="font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--orange);letter-spacing:2px;text-transform:uppercase;margin-bottom:16px;">// KOMPONEN DASAR LOOP KONTROL</div>
+    <div class="grid-4">
+      <div style="background:var(--navy-card);border:1px solid rgba(255,107,0,0.2);padding:20px;text-align:center;" onclick="openModal('modal-setpoint')" style="cursor:pointer">
+        <div style="font-size:28px;margin-bottom:8px;">🎯</div>
+        <div style="font-family:'Orbitron',monospace;font-size:12px;color:var(--orange);margin-bottom:6px;">SETPOINT</div>
+        <div style="font-size:13px;color:var(--gray-light);">Nilai yang ingin dicapai/dijaga. Contoh: suhu 85°C, tekanan 7 bar.</div>
+        <div style="margin-top:10px;font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--teal);cursor:pointer;border:1px solid var(--teal-dim);padding:3px 8px;display:inline-block;" onclick="openModal('modal-setpoint')">▸ Detail</div>
+      </div>
+      <div style="background:var(--navy-card);border:1px solid rgba(255,107,0,0.2);padding:20px;text-align:center;">
+        <div style="font-size:28px;margin-bottom:8px;">📡</div>
+        <div style="font-family:'Orbitron',monospace;font-size:12px;color:var(--teal);margin-bottom:6px;">SENSOR</div>
+        <div style="font-size:13px;color:var(--gray-light);">Mengukur proses aktual. Thermocouple, pressure transmitter, flow meter, pH electrode.</div>
+        <div style="margin-top:10px;font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--teal);cursor:pointer;border:1px solid var(--teal-dim);padding:3px 8px;display:inline-block;" onclick="openModal('modal-sensor')">▸ Detail</div>
+      </div>
+      <div style="background:var(--navy-card);border:1px solid rgba(255,107,0,0.2);padding:20px;text-align:center;">
+        <div style="font-size:28px;margin-bottom:8px;">🖥️</div>
+        <div style="font-family:'Orbitron',monospace;font-size:12px;color:var(--gold);margin-bottom:6px;">CONTROLLER</div>
+        <div style="font-size:13px;color:var(--gray-light);">PLC memproses sinyal sensor, membandingkan dengan setpoint, menghasilkan perintah koreksi.</div>
+        <div style="margin-top:10px;font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--teal);cursor:pointer;border:1px solid var(--teal-dim);padding:3px 8px;display:inline-block;" onclick="openModal('modal-controller')">▸ Detail</div>
+      </div>
+      <div style="background:var(--navy-card);border:1px solid rgba(255,107,0,0.2);padding:20px;text-align:center;">
+        <div style="font-size:28px;margin-bottom:8px;">🔧</div>
+        <div style="font-family:'Orbitron',monospace;font-size:12px;color:var(--green);margin-bottom:6px;">AKTUATOR</div>
+        <div style="font-size:13px;color:var(--gray-light);">Mengeksekusi perintah controller — valve buka/tutup, motor nyala/mati, heater on/off.</div>
+        <div style="margin-top:10px;font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--teal);cursor:pointer;border:1px solid var(--teal-dim);padding:3px 8px;display:inline-block;" onclick="openModal('modal-actuator')">▸ Detail</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Diagram Closed Loop -->
+  <div class="info-box orange">
+    <div class="info-box-tag">// Diagram Closed-Loop vs Open-Loop</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;flex-wrap:wrap;">
+      <div>
+        <div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--green);letter-spacing:1px;margin-bottom:12px;">● CLOSED-LOOP (Feedback)</div>
+        <div style="display:flex;align-items:center;gap:4px;flex-wrap:wrap;font-family:'Share Tech Mono',monospace;font-size:9px;margin-bottom:8px;">
+          <span style="padding:5px 8px;border:1px solid var(--orange-dim);color:var(--orange);">SP</span>
+          <span style="color:var(--gray)">→</span>
+          <span style="padding:5px 8px;border:1px solid var(--teal-dim);color:var(--teal);">CONTROLLER</span>
+          <span style="color:var(--gray)">→</span>
+          <span style="padding:5px 8px;border:1px solid var(--gray);color:var(--white);background:rgba(255,255,255,0.04);">PLANT</span>
+          <span style="color:var(--gray)">→</span>
+          <span style="padding:5px 8px;border:1px solid var(--green-dim);color:var(--green);">OUTPUT</span>
+        </div>
+        <div style="font-family:'Share Tech Mono',monospace;font-size:8px;color:var(--gray);text-align:center;">↑_________ FEEDBACK _________↑</div>
+        <p style="font-size:13px;color:var(--gray-light);margin-top:10px;line-height:1.7;"><strong style="color:var(--white)">Error = SP − PV.</strong> Controller terus menyesuaikan output agar error = 0. Lebih akurat, lebih aman. Digunakan di mayoritas sistem kapal.</p>
+      </div>
+      <div>
+        <div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--gold);letter-spacing:1px;margin-bottom:12px;">○ OPEN-LOOP (Tanpa Feedback)</div>
+        <div style="display:flex;align-items:center;gap:4px;flex-wrap:wrap;font-family:'Share Tech Mono',monospace;font-size:9px;margin-bottom:8px;">
+          <span style="padding:5px 8px;border:1px solid var(--orange-dim);color:var(--orange);">INPUT</span>
+          <span style="color:var(--gray)">→</span>
+          <span style="padding:5px 8px;border:1px solid var(--gold-dim);color:var(--gold);">CONTROLLER</span>
+          <span style="color:var(--gray)">→</span>
+          <span style="padding:5px 8px;border:1px solid var(--gray);color:var(--white);background:rgba(255,255,255,0.04);">PLANT</span>
+          <span style="color:var(--gray)">→</span>
+          <span style="padding:5px 8px;border:1px solid var(--gray);color:var(--gray);">OUTPUT</span>
+        </div>
+        <div style="font-family:'Share Tech Mono',monospace;font-size:8px;color:var(--gray);text-align:center;">(Tidak ada feedback)</div>
+        <p style="font-size:13px;color:var(--gray-light);margin-top:10px;line-height:1.7;">Tidak ada koreksi otomatis jika output meleset. Digunakan untuk urutan sederhana (sequential step) dimana hasil langkah satu sudah pasti sebelum lanjut ke langkah berikutnya.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION 2: SEQUENTIAL CONTROL -->
+<section id="sec-sequential">
+  <div class="section-header">
+    <div class="section-tag">// 02 — SEQUENTIAL CONTROL</div>
+    <h2 class="section-title">Apa Itu Sequential Control System?</h2>
+    <p class="section-desc">Sequential control (kontrol sekuensial) adalah sistem di mana operasi dilaksanakan dalam urutan langkah-langkah yang sudah ditentukan — setiap langkah baru bisa dimulai setelah langkah sebelumnya selesai atau kondisi tertentu terpenuhi.</p>
+  </div>
+
+  <!-- Definisi -->
+  <div class="grid-2" style="margin-bottom:32px;">
+    <div>
+      <div class="info-box orange" style="margin-top:0;">
+        <div class="info-box-tag">// Definisi Sequential Control</div>
+        <p style="margin-bottom:12px;"><strong>Sequential Control</strong> adalah metode kontrol yang menjalankan serangkaian operasi atau tindakan secara berurutan (step-by-step), di mana:</p>
+        <ul style="padding-left:18px;font-size:14px;color:var(--gray-light);line-height:2;">
+          <li><strong style="color:var(--orange)">Kondisi (Condition)</strong> — setiap langkah baru dimulai bila kondisi tertentu terpenuhi</li>
+          <li><strong style="color:var(--orange)">Interlock</strong> — pengaman agar langkah tidak bisa dilewati jika kondisi belum siap</li>
+          <li><strong style="color:var(--orange)">Timer</strong> — langkah dapat dipicu oleh waktu (misal: purge 30 detik)</li>
+          <li><strong style="color:var(--orange)">State Machine</strong> — sistem selalu berada dalam satu "state" tertentu</li>
+        </ul>
+      </div>
+    </div>
+    <div>
+      <div class="info-box teal" style="margin-top:0;">
+        <div class="info-box-tag">// Karakteristik Utama</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+          <div style="text-align:center;padding:12px;background:rgba(255,107,0,0.05);border:1px solid rgba(255,107,0,0.15);">
+            <div style="font-size:24px;margin-bottom:6px;">🔢</div>
+            <div style="font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--orange);letter-spacing:1px;">STEP-BASED</div>
+            <div style="font-size:11px;color:var(--gray-light);margin-top:4px;">Berbasis langkah diskrit, bukan nilai kontinu</div>
+          </div>
+          <div style="text-align:center;padding:12px;background:rgba(0,200,212,0.05);border:1px solid rgba(0,200,212,0.15);">
+            <div style="font-size:24px;margin-bottom:6px;">🔒</div>
+            <div style="font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--teal);letter-spacing:1px;">INTERLOCK</div>
+            <div style="font-size:11px;color:var(--gray-light);margin-top:4px;">Keamanan berlapis antar langkah</div>
+          </div>
+          <div style="text-align:center;padding:12px;background:rgba(240,165,0,0.05);border:1px solid rgba(240,165,0,0.15);">
+            <div style="font-size:24px;margin-bottom:6px;">⏱️</div>
+            <div style="font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--gold);letter-spacing:1px;">TIMER</div>
+            <div style="font-size:11px;color:var(--gray-light);margin-top:4px;">Langkah dikontrol waktu atau event</div>
+          </div>
+          <div style="text-align:center;padding:12px;background:rgba(0,230,118,0.05);border:1px solid rgba(0,230,118,0.15);">
+            <div style="font-size:24px;margin-bottom:6px;">🔄</div>
+            <div style="font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--green);letter-spacing:1px;">STATE MACHINE</div>
+            <div style="font-size:11px;color:var(--gray-light);margin-top:4px;">Satu state aktif di satu waktu</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Generic Flow -->
+  <div style="font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--orange);letter-spacing:2px;text-transform:uppercase;margin-bottom:16px;">// CONTOH ALUR SEKUENSIAL GENERIK (KLIK UNTUK DETAIL)</div>
+  <div class="seq-flow" id="genericFlow">
+    <div class="seq-step" onclick="highlightSeqStep(0)" data-idx="0">
+      <span class="seq-num">01</span>
+      <span class="seq-name">START</span>
+      <p class="seq-desc">Inisiasi perintah dari operator atau IAS</p>
+      <span class="seq-detail">Trigger: tombol / alarm / jadwal</span>
+    </div>
+    <div class="seq-step" onclick="highlightSeqStep(1)" data-idx="1">
+      <span class="seq-num">02</span>
+      <span class="seq-name">CHECK</span>
+      <p class="seq-desc">Verifikasi semua kondisi prasyarat (interlock check)</p>
+      <span class="seq-detail">Interlock: oil level, pressure, temp OK?</span>
+    </div>
+    <div class="seq-step" onclick="highlightSeqStep(2)" data-idx="2">
+      <span class="seq-num">03</span>
+      <span class="seq-name">EXECUTE</span>
+      <p class="seq-desc">Jalankan operasi utama dengan urutan langkah</p>
+      <span class="seq-detail">Action: valve buka → pump start → monitor</span>
+    </div>
+    <div class="seq-step" onclick="highlightSeqStep(3)" data-idx="3">
+      <span class="seq-num">04</span>
+      <span class="seq-name">MONITOR</span>
+      <p class="seq-desc">Pantau kondisi selama operasi berlangsung</p>
+      <span class="seq-detail">Cek: sensor feedback, alarm, timeout</span>
+    </div>
+    <div class="seq-step" onclick="highlightSeqStep(4)" data-idx="4">
+      <span class="seq-num">05</span>
+      <span class="seq-name">STOP/SAFE</span>
+      <p class="seq-desc">Hentikan operasi dalam urutan aman (reverse sequence)</p>
+      <span class="seq-detail">Shutdown: pump stop → valve tutup → reset</span>
+    </div>
+  </div>
+
+  <!-- SFC Diagram -->
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:28px;align-items:start;margin-top:28px;">
+    <div>
+      <div style="font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--orange);letter-spacing:2px;text-transform:uppercase;margin-bottom:16px;">// SFC — SEQUENTIAL FUNCTION CHART (IEC 61131-3)</div>
+      <div class="sfc-wrap" id="sfcDiagram">
+        <div class="sfc-step initial" onclick="activateSfc(this)">
+          <span class="sfc-step-num">STEP 0</span>
+          <span class="sfc-step-name">IDLE / RESET</span>
+          <div class="sfc-action">Action: All OFF, reset flags</div>
+        </div>
+        <div class="sfc-arrow" style="font-family:'Share Tech Mono',monospace;font-size:20px;">↓</div>
+        <div class="sfc-trans">
+          <div class="sfc-trans-line"></div>
+          <div class="sfc-trans-cond">START_CMD = TRUE</div>
+          <div class="sfc-trans-line"></div>
+        </div>
+        <div class="sfc-arrow" style="font-family:'Share Tech Mono',monospace;font-size:20px;">↓</div>
+        <div class="sfc-step" onclick="activateSfc(this)">
+          <span class="sfc-step-num">STEP 1</span>
+          <span class="sfc-step-name">PRE-CHECK</span>
+          <div class="sfc-action">Action: Verify interlocks</div>
+        </div>
+        <div class="sfc-arrow" style="font-family:'Share Tech Mono',monospace;font-size:20px;">↓</div>
+        <div class="sfc-trans">
+          <div class="sfc-trans-line"></div>
+          <div class="sfc-trans-cond">ALL_OK = TRUE</div>
+          <div class="sfc-trans-line"></div>
+        </div>
+        <div class="sfc-arrow" style="font-family:'Share Tech Mono',monospace;font-size:20px;">↓</div>
+        <div class="sfc-step" onclick="activateSfc(this)">
+          <span class="sfc-step-num">STEP 2</span>
+          <span class="sfc-step-name">RUN SEQUENCE</span>
+          <div class="sfc-action">Action: Execute main operation</div>
+        </div>
+        <div class="sfc-arrow" style="font-family:'Share Tech Mono',monospace;font-size:20px;">↓</div>
+        <div class="sfc-trans">
+          <div class="sfc-trans-line"></div>
+          <div class="sfc-trans-cond">DONE OR FAULT</div>
+          <div class="sfc-trans-line"></div>
+        </div>
+        <div class="sfc-arrow" style="font-family:'Share Tech Mono',monospace;font-size:20px;">↓</div>
+        <div class="sfc-step" onclick="activateSfc(this)">
+          <span class="sfc-step-num">STEP 3</span>
+          <span class="sfc-step-name">SHUTDOWN SAFE</span>
+          <div class="sfc-action">Action: Safe stop sequence</div>
+        </div>
+      </div>
+    </div>
+    <div>
+      <div style="font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--teal);letter-spacing:2px;text-transform:uppercase;margin-bottom:16px;">// CONTOH LADDER DIAGRAM PLC — BOILER START</div>
+      <div class="ladder">
+        <div style="font-size:9px;color:var(--gray);margin-bottom:12px;letter-spacing:1px;">// RUNG 1: Valve open jika level OK dan temp OK</div>
+        <div class="ld-rung">
+          <div class="ld-rail" style="height:50px;"></div>
+          <div class="ld-wire" style="width:15px;"></div>
+          <div class="ld-contact">
+            <div class="ld-contact-sym">—[ ]—</div>
+            <div class="ld-contact-label">LEVEL_OK</div>
+          </div>
+          <div class="ld-wire" style="width:15px;"></div>
+          <div class="ld-contact">
+            <div class="ld-contact-sym">—[ ]—</div>
+            <div class="ld-contact-label">TEMP_OK</div>
+          </div>
+          <div class="ld-wire" style="width:15px;"></div>
+          <div class="ld-coil">
+            <div class="ld-coil-sym">—( )—</div>
+            <div class="ld-coil-label">VALVE_OPEN</div>
+          </div>
+          <div class="ld-wire" style="width:10px;"></div>
+          <div class="ld-rail" style="height:50px;"></div>
+        </div>
+        <div style="font-size:9px;color:var(--gray);margin-bottom:12px;letter-spacing:1px;">// RUNG 2: Pump ON jika valve sudah terbuka</div>
+        <div class="ld-rung">
+          <div class="ld-rail" style="height:50px;"></div>
+          <div class="ld-wire" style="width:15px;"></div>
+          <div class="ld-contact">
+            <div class="ld-contact-sym">—[ ]—</div>
+            <div class="ld-contact-label">VALVE_OPEN</div>
+          </div>
+          <div class="ld-wire" style="width:15px;"></div>
+          <div class="ld-contact">
+            <div class="ld-contact-sym">—[/]—</div>
+            <div class="ld-contact-label">FAULT</div>
+          </div>
+          <div class="ld-wire" style="width:15px;"></div>
+          <div class="ld-coil">
+            <div class="ld-coil-sym">—( )—</div>
+            <div class="ld-coil-label">PUMP_START</div>
+          </div>
+          <div class="ld-wire" style="width:10px;"></div>
+          <div class="ld-rail" style="height:50px;"></div>
+        </div>
+        <div style="font-size:9px;color:var(--gray);margin-bottom:12px;letter-spacing:1px;">// RUNG 3: Fault alarm jika sensor gagal</div>
+        <div class="ld-rung">
+          <div class="ld-rail" style="height:50px;"></div>
+          <div class="ld-wire" style="width:15px;"></div>
+          <div class="ld-contact">
+            <div class="ld-contact-sym">—[/]—</div>
+            <div class="ld-contact-label">SENSOR_OK</div>
+          </div>
+          <div class="ld-wire" style="width:58px;"></div>
+          <div class="ld-coil">
+            <div class="ld-coil-sym" style="border-color:var(--red);color:var(--red);background:rgba(255,68,68,0.08);">—(A)—</div>
+            <div class="ld-coil-label" style="color:var(--red);">FAULT_ALARM</div>
+          </div>
+          <div class="ld-wire" style="width:10px;"></div>
+          <div class="ld-rail" style="height:50px;"></div>
+        </div>
+        <div style="font-family:'Share Tech Mono',monospace;font-size:8px;color:var(--gray);margin-top:12px;line-height:1.8;">
+          [ ] = NO contact (Normally Open)<br>
+          [/] = NC contact (Normally Closed)<br>
+          ( ) = Output coil &nbsp;&nbsp;&nbsp; (A) = Alarm coil
+        </div>
+      </div>
+
+      <div class="info-box teal" style="margin-top:16px;">
+        <div class="info-box-tag">// Logika Kondisi Sequential (IF-THEN)</div>
+        <div class="formula">
+          IF VALVE_OPEN = TRUE<br>
+          AND FAULT = FALSE<br>
+          THEN PUMP_START := TRUE;<br><br>
+          IF TEMP &gt; 95°C OR PRESSURE &gt; 8.5 bar<br>
+          THEN EMERGENCY_SHUTDOWN := TRUE;
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION 3: COMPARE -->
+<section id="sec-compare">
+  <div class="section-header">
+    <div class="section-tag">// 03 — PERBANDINGAN</div>
+    <h2 class="section-title">Sequential vs Continuous Control</h2>
+    <p class="section-desc">Memahami perbedaan dua metode kontrol utama ini adalah fondasi untuk mengerti semua sistem otomasi di kapal. Keduanya bekerja bersama-sama, bukan saling menggantikan.</p>
+  </div>
+
+  <div style="overflow-x:auto;margin-bottom:28px;">
+    <table class="cmp-table">
+      <thead>
+        <tr>
+          <th>Aspek</th>
+          <th>Sequential Control</th>
+          <th>Continuous Control (PID)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr class="row-seq">
+          <td>Prinsip Kerja</td>
+          <td><span class="pill pill-orange" style="margin-right:6px;">STEP</span> Operasi berurutan, satu langkah menunggu langkah sebelumnya selesai</td>
+          <td><span class="pill pill-teal" style="margin-right:6px;">MATH</span> Hitung error secara terus-menerus, koreksi proporsional terhadap deviasi</td>
+        </tr>
+        <tr class="row-pid">
+          <td>Jenis Sinyal</td>
+          <td>Diskrit — Digital (ON/OFF, TRUE/FALSE)</td>
+          <td>Kontinu — Analog (4-20mA, 0-10V, nilai desimal)</td>
+        </tr>
+        <tr class="row-seq">
+          <td>Logika</td>
+          <td>IF-THEN, State Machine, Interlock, Timer</td>
+          <td>Formula matematika: PID = P + I + D</td>
+        </tr>
+        <tr class="row-pid">
+          <td>Contoh Kapal</td>
+          <td>Start engine, boiler startup, purifier auto-start, ballast sequence</td>
+          <td>Suhu air pendingin, tekanan uap, RPM mesin, pH scrubber</td>
+        </tr>
+        <tr class="row-seq">
+          <td>Output PLC</td>
+          <td>Digital Output (DO) — kontaktor, solenoid, relay</td>
+          <td>Analog Output (AO) — valve positioner, VFD speed ref</td>
+        </tr>
+        <tr class="row-pid">
+          <td>Bahasa PLC</td>
+          <td>Ladder Diagram (LD), Sequential Function Chart (SFC)</td>
+          <td>Function Block Diagram (FBD), Structured Text (ST)</td>
+        </tr>
+        <tr class="row-seq">
+          <td>Keunggulan</td>
+          <td>Aman (interlock), deterministik, mudah di-troubleshoot</td>
+          <td>Akurasi tinggi, respons cepat terhadap gangguan kontinu</td>
+        </tr>
+        <tr class="row-pid">
+          <td>Kekurangan</td>
+          <td>Tidak bisa mengontrol nilai kontinu secara halus</td>
+          <td>Tidak bisa mengelola urutan operasi yang kompleks</td>
+        </tr>
+        <tr class="row-seq">
+          <td>Kompleksitas</td>
+          <td>⭐⭐⭐ (logika state kompleks)</td>
+          <td>⭐⭐⭐ (tuning parameter butuh keahlian)</td>
+        </tr>
+        <tr class="row-pid">
+          <td>Digunakan Bersama?</td>
+          <td colspan="2" style="text-align:center;color:var(--gold);font-weight:700;">✓ YA — Hampir semua sistem kapal gabungan keduanya!</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="grid-3">
+    <div class="info-box orange" style="margin-top:0">
+      <div class="info-box-tag">// Sequential Only</div>
+      <ul>
+        <li>Turning gear interlock</li>
+        <li>Fire alarm sequence</li>
+        <li>Bilge pump auto-start</li>
+        <li>CO₂ flooding interlock</li>
+        <li>Anchor windlass interlock</li>
+      </ul>
+    </div>
+    <div class="info-box teal" style="margin-top:0">
+      <div class="info-box-tag">// Continuous (PID) Only</div>
+      <ul>
+        <li>Autopilot heading (PID)</li>
+        <li>Fuel oil temperature</li>
+        <li>Scrubber pH control</li>
+        <li>Refrigeration superheat</li>
+        <li>Turbocharger boost pressure</li>
+      </ul>
+    </div>
+    <div class="info-box gold" style="margin-top:0">
+      <div class="info-box-tag">// Hybrid (Sequential + PID)</div>
+      <ul>
+        <li>Boiler: start (seq) + pressure (PID)</li>
+        <li>Fresh water gen: startup (seq) + salinity (PID)</li>
+        <li>Ballast: valve sequence + level PID</li>
+        <li>Purifier: startup sequence + speed PID</li>
+        <li>Main engine: start seq + RPM PID</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION 4: PLC & SEQUENTIAL -->
+<section id="sec-plc-logic">
+  <div class="section-header">
+    <div class="section-tag">// 04 — PLC & SEQUENTIAL LOGIC</div>
+    <h2 class="section-title">Hubungan PLC dengan Sequential Control</h2>
+    <p class="section-desc">Banyak yang salah mengira "PLC = Sequential". Ini tidak tepat. PLC adalah alat (hardware + software), sedangkan Sequential adalah salah satu <em>metode kontrol</em> yang bisa dijalankan di PLC.</p>
+  </div>
+
+  <!-- Visual Analogi -->
+  <div class="info-box orange" style="margin-top:0;margin-bottom:28px;">
+    <div class="info-box-tag">// Analogi Sederhana</div>
+    <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;justify-content:center;padding:16px 0;">
+      <div style="text-align:center;padding:18px 24px;border:2px solid var(--orange-dim);">
+        <div style="font-size:36px;margin-bottom:8px;">🖥️</div>
+        <div style="font-family:'Orbitron',monospace;font-size:13px;color:var(--orange);font-weight:700;">PLC</div>
+        <div style="font-size:12px;color:var(--gray-light);margin-top:6px;">= Komputer/Otak</div>
+        <div style="font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--gray);margin-top:4px;">(hardware + OS)</div>
+      </div>
+      <div style="font-size:28px;color:var(--orange-dim);">⊃</div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center;">
+        <div style="text-align:center;padding:14px 18px;border:1px solid rgba(255,107,0,0.3);background:rgba(255,107,0,0.06);">
+          <div style="font-size:24px;margin-bottom:6px;">📋</div>
+          <div style="font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--orange);">SEQUENTIAL</div>
+          <div style="font-size:11px;color:var(--gray-light);margin-top:4px;">SFC / Ladder</div>
+        </div>
+        <div style="text-align:center;padding:14px 18px;border:1px solid rgba(0,200,212,0.3);background:rgba(0,200,212,0.06);">
+          <div style="font-size:24px;margin-bottom:6px;">📈</div>
+          <div style="font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--teal);">PID CONTROL</div>
+          <div style="font-size:11px;color:var(--gray-light);margin-top:4px;">FBD / ST</div>
+        </div>
+        <div style="text-align:center;padding:14px 18px;border:1px solid rgba(240,165,0,0.3);background:rgba(240,165,0,0.06);">
+          <div style="font-size:24px;margin-bottom:6px;">🔀</div>
+          <div style="font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--gold);">ON/OFF LOGIC</div>
+          <div style="font-size:11px;color:var(--gray-light);margin-top:4px;">Ladder / LD</div>
+        </div>
+        <div style="text-align:center;padding:14px 18px;border:1px solid rgba(170,68,255,0.3);background:rgba(170,68,255,0.06);">
+          <div style="font-size:24px;margin-bottom:6px;">🧠</div>
+          <div style="font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--purple);">FUZZY/MPC</div>
+          <div style="font-size:11px;color:var(--gray-light);margin-top:4px;">ST / C-code</div>
+        </div>
+      </div>
+    </div>
+    <p style="text-align:center;font-family:'Orbitron',monospace;font-size:12px;color:var(--orange);letter-spacing:2px;margin-top:8px;">PLC = OTAK &nbsp;&nbsp;|&nbsp;&nbsp; SEQUENTIAL = CARA BERPIKIR</p>
+  </div>
+
+  <div class="grid-2">
+    <div>
+      <div style="font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--orange);letter-spacing:2px;text-transform:uppercase;margin-bottom:16px;">// BAHASA PEMROGRAMAN PLC (IEC 61131-3)</div>
+      <div class="steps">
+        <div class="step-item">
+          <div class="step-num2">LD</div>
+          <div>
+            <div class="step-title2">Ladder Diagram</div>
+            <p class="step-desc2">Paling umum di kapal. Mirip diagram rangkaian listrik — mudah dibaca oleh engineer yang terbiasa dengan wiring diagram. Digunakan untuk sequential dan on/off logic.</p>
+            <div class="step-detail2">Contoh: Pompa start sequence, interlock relay logic, alarm circuit</div>
+          </div>
+        </div>
+        <div class="step-item">
+          <div class="step-num2">SFC</div>
+          <div>
+            <div class="step-title2">Sequential Function Chart</div>
+            <p class="step-desc2">Dirancang khusus untuk sequential control. Menampilkan alur step-by-step dengan transisi kondisi antar langkah. Standar IEC 61131-3 untuk SFC.</p>
+            <div class="step-detail2">Contoh: Boiler startup, main engine starting sequence, cargo pump sequence</div>
+          </div>
+        </div>
+        <div class="step-item">
+          <div class="step-num2">FBD</div>
+          <div>
+            <div class="step-title2">Function Block Diagram</div>
+            <p class="step-desc2">Ideal untuk loop kontrol PID dan operasi matematis. Setiap blok mewakili fungsi (PID, compare, arithmetic). Mudah dikonfigurasi secara visual.</p>
+            <div class="step-detail2">Contoh: PID temperature control, cascade loop, ratio control</div>
+          </div>
+        </div>
+        <div class="step-item">
+          <div class="step-num2">ST</div>
+          <div>
+            <div class="step-title2">Structured Text</div>
+            <p class="step-desc2">Mirip bahasa Pascal/C. Paling fleksibel untuk algoritma kompleks (Fuzzy, MPC). Digunakan untuk kalkulasi matematis yang rumit.</p>
+            <div class="step-detail2">Contoh: Fuzzy logic CPP blade, MPC power management, data logging</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div>
+      <div style="font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--teal);letter-spacing:2px;text-transform:uppercase;margin-bottom:16px;">// CONTOH PROGRAM SFC — PURIFIER AUTO-START</div>
+      <div style="background:#050c1a;border:1px solid rgba(0,200,212,0.25);padding:20px;font-family:'Share Tech Mono',monospace;font-size:11px;line-height:2;">
+        <div style="color:var(--gray);margin-bottom:10px;font-size:9px;letter-spacing:1px;">// SFC PSEUDOCODE — PURIFIER STARTUP</div>
+        <div style="color:var(--teal);">STEP S0: IDLE</div>
+        <div style="color:var(--gray-light);padding-left:16px;">Action: Motor OFF, valve CLOSED</div>
+        <div style="padding-left:16px;color:var(--orange);">→ [T: START_CMD = ON] → S1</div>
+        <div style="color:var(--teal);">STEP S1: FILL_BOWL</div>
+        <div style="color:var(--gray-light);padding-left:16px;">Action: Open water valve, fill for 30s</div>
+        <div style="padding-left:16px;color:var(--orange);">→ [T: Timer_30s = TRUE] → S2</div>
+        <div style="color:var(--teal);">STEP S2: ACCELERATE</div>
+        <div style="color:var(--gray-light);padding-left:16px;">Action: Motor ON, ramp to full speed</div>
+        <div style="padding-left:16px;color:var(--orange);">→ [T: RPM ≥ 7200] → S3</div>
+        <div style="color:var(--teal);">STEP S3: FEED_OIL</div>
+        <div style="color:var(--gray-light);padding-left:16px;">Action: Open oil feed valve</div>
+        <div style="padding-left:16px;color:var(--orange);">→ [T: STOP_CMD OR FAULT] → S4</div>
+        <div style="color:var(--teal);">STEP S4: SAFE_STOP</div>
+        <div style="color:var(--gray-light);padding-left:16px;">Action: Close oil valve, decelerate, drain</div>
+        <div style="padding-left:16px;color:var(--orange);">→ [T: RPM = 0] → S0</div>
+      </div>
+      <div class="info-box green" style="margin-top:16px;">
+        <div class="info-box-tag">// Keunggulan SFC untuk Kapal</div>
+        <p>SFC menjamin bahwa purifier <strong>tidak bisa menerima oli sebelum bowl mencapai kecepatan penuh</strong>. Interlock ini mencegah oil carry-over yang bisa merusak sistem bahan bakar. Tidak mungkin dilakukan dengan PID murni.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION 5: PLC CYCLE -->
+<section id="sec-plc-cycle">
+  <div class="section-header">
+    <div class="section-tag">// 05 — SIKLUS KERJA PLC</div>
+    <h2 class="section-title">Cara PLC Bekerja — Scan Cycle</h2>
+    <p class="section-desc">PLC bukan komputer biasa. Ia bekerja dalam siklus deterministik yang berulang terus-menerus dalam hitungan milidetik. Memahami siklus ini krusial untuk troubleshooting dan commissioning.</p>
+  </div>
+
+  <div class="plc-cycle-anim" id="plcCycleAnim">
+    <div class="cycle-box" id="cyc0">
+      <span class="cycle-num2">01</span>
+      <span class="cycle-name2">Input Scan</span>
+      <p class="cycle-desc2">Baca semua sinyal dari sensor (suhu, tekanan, level, RPM) dan simpan di memori Input Image Table</p>
+      <span class="cycle-ms">~1–5 ms</span>
+    </div>
+    <div class="cycle-box" id="cyc1">
+      <span class="cycle-num2">02</span>
+      <span class="cycle-name2">Program Exec</span>
+      <p class="cycle-desc2">Jalankan program (Ladder/SFC/FBD): hitung logika, jalankan PID, update state machine sequential</p>
+      <span class="cycle-ms">~5–50 ms</span>
+    </div>
+    <div class="cycle-box" id="cyc2">
+      <span class="cycle-num2">03</span>
+      <span class="cycle-name2">Output Scan</span>
+      <p class="cycle-desc2">Update sinyal output ke aktuator: buka valve, nyalakan motor, kirim data ke IAS via fieldbus</p>
+      <span class="cycle-ms">~1–5 ms</span>
+    </div>
+    <div class="cycle-box" id="cyc3">
+      <span class="cycle-num2">04</span>
+      <span class="cycle-name2">Housekeeping</span>
+      <p class="cycle-desc2">Diagnostik internal, komunikasi jaringan, reset watchdog timer. Jika fault → alarm ke IAS</p>
+      <span class="cycle-ms">~1–3 ms</span>
+    </div>
+  </div>
+  <div style="text-align:center;font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--gray);margin-bottom:28px;letter-spacing:1px;">↺ Siklus berulang 10–100 kali per detik (10–100 ms total scan time)</div>
+  <div style="text-align:center;margin-bottom:24px;">
+    <button class="btn btn-orange" onclick="startCycleAnim()">▸ Animasi Siklus PLC</button>
+    <button class="btn btn-teal" onclick="stopCycleAnim()" style="margin-left:10px;">■ Stop</button>
+  </div>
+
+  <div class="grid-3">
+    <div class="info-box orange" style="margin-top:0">
+      <div class="info-box-tag">// Scan Time Kapal</div>
+      <p><strong>Standar:</strong> 10–100 ms (10–100 siklus/detik)<br><strong>Safety kritis</strong> (steering, fire pump): &lt;10 ms<br><strong>Slow process</strong> (ballast level): &lt;500 ms cukup<br>Semakin pendek scan time = semakin cepat respons</p>
+    </div>
+    <div class="info-box teal" style="margin-top:0">
+      <div class="info-box-tag">// Watchdog Timer</div>
+      <p>Jika PLC tidak mereset watchdog dalam waktu tertentu (misal 200 ms), sistem dianggap hang dan PLC otomatis <strong>reset atau masuk safe state</strong>. Vital untuk keselamatan kapal.</p>
+    </div>
+    <div class="info-box gold" style="margin-top:0">
+      <div class="info-box-tag">// Input Image Table</div>
+      <p>PLC tidak membaca sensor langsung saat program berjalan — ia membaca <strong>snapshot (image)</strong> yang diambil di awal siklus. Ini menjamin konsistensi data dalam satu siklus scan.</p>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION 6: HIERARCHY -->
+<section id="sec-hierarchy">
+  <div class="section-header">
+    <div class="section-tag">// 06 — HIERARKI OTOMASI</div>
+    <h2 class="section-title">Piramida Otomasi: PLC → IAS → Bridge</h2>
+    <p class="section-desc">Sistem kontrol kapal terorganisir dalam hierarki 4 level. Setiap level memiliki fungsi berbeda, terhubung melalui protokol komunikasi industri.</p>
+  </div>
+
+  <div class="hier-wrap">
+    <div class="hier-row">
+      <div class="hier-box l3" onclick="openModal('modal-bridge')" style="cursor:pointer">
+        <div class="hier-title">LEVEL 3 — BRIDGE / ECR CONSOLE</div>
+        <div class="hier-sub">Autopilot | DP Console | Engine Telegraph | Alarm Management</div>
+        <div class="hier-items">
+          <span class="hier-item">Autopilot System</span>
+          <span class="hier-item">DP Operator Console</span>
+          <span class="hier-item">Engine Telegraph</span>
+          <span class="hier-item">Alarm Mgmt System</span>
+          <span class="hier-item">▸ Klik untuk detail</span>
+        </div>
+      </div>
+    </div>
+    <div class="hier-arrow">↕ Ethernet / Modbus TCP / NMEA 2000</div>
+    <div class="hier-row">
+      <div class="hier-box l2" onclick="openModal('modal-ias')" style="cursor:pointer">
+        <div class="hier-title">LEVEL 2 — IAS / SCADA</div>
+        <div class="hier-sub">Integrated Automation System — Supervisory Control and Data Acquisition</div>
+        <div class="hier-items">
+          <span class="hier-item">Power Management</span>
+          <span class="hier-item">Ballast Control</span>
+          <span class="hier-item">Cargo Monitoring</span>
+          <span class="hier-item">Engine Performance</span>
+          <span class="hier-item">Alarm & Logging</span>
+          <span class="hier-item">▸ Klik untuk detail</span>
+        </div>
+      </div>
+    </div>
+    <div class="hier-arrow">↕ Profibus DP / DeviceNet / EtherNet/IP / CANbus</div>
+    <div class="hier-row">
+      <div class="hier-box l1" onclick="openModal('modal-plc-hier')" style="cursor:pointer">
+        <div class="hier-title">LEVEL 1 — PLC / LOCAL CONTROLLERS</div>
+        <div class="hier-sub">Programmable Logic Controller — Eksekutor langsung perintah kontrol sekuensial & continuous</div>
+        <div class="hier-items">
+          <span class="hier-item">Boiler PLC</span>
+          <span class="hier-item">Purifier PLC</span>
+          <span class="hier-item">FWG PLC</span>
+          <span class="hier-item">Scrubber PLC</span>
+          <span class="hier-item">Steering PLC</span>
+          <span class="hier-item">HVAC PLC</span>
+          <span class="hier-item">Fire Pump PLC</span>
+          <span class="hier-item">Hydraulic PLC</span>
+          <span class="hier-item">▸ Klik untuk detail</span>
+        </div>
+      </div>
+    </div>
+    <div class="hier-arrow">↕ I/O Wiring: 4-20mA / 24VDC / 0-10V / Digital I/O</div>
+    <div class="hier-row">
+      <div class="hier-box l0">
+        <div class="hier-title">LEVEL 0 — FIELD DEVICES (SENSOR & AKTUATOR)</div>
+        <div class="hier-sub">Langsung berinteraksi dengan proses fisik di kapal</div>
+        <div class="hier-items">
+          <span class="hier-item">Pressure Transmitter</span>
+          <span class="hier-item">Thermocouple / RTD</span>
+          <span class="hier-item">Flow Meter</span>
+          <span class="hier-item">Level Sensor</span>
+          <span class="hier-item">pH Electrode</span>
+          <span class="hier-item">Tachometer</span>
+          <span class="hier-item">Servo Valve</span>
+          <span class="hier-item">Solenoid Valve</span>
+          <span class="hier-item">Hydraulic Actuator</span>
+          <span class="hier-item">Motor Drive</span>
+          <span class="hier-item">Circuit Breaker</span>
+          <span class="hier-item">Pneumatic Valve</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="info-box orange" style="margin-top:0">
+    <div class="info-box-tag">// Alur Data Sequential dalam Hierarki</div>
+    <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;font-family:'Share Tech Mono',monospace;font-size:10px;padding:10px 0;justify-content:center;">
+      <span style="padding:6px 10px;border:1px solid var(--gray-light);color:var(--white);">Operator (Bridge)</span>
+      <span style="color:var(--orange)">→</span>
+      <span style="padding:6px 10px;border:1px solid var(--orange);color:var(--orange);">IAS: Set Sequence</span>
+      <span style="color:var(--orange)">→</span>
+      <span style="padding:6px 10px;border:1px solid var(--teal);color:var(--teal);">PLC: Execute Steps</span>
+      <span style="color:var(--orange)">→</span>
+      <span style="padding:6px 10px;border:1px solid var(--green-dim);color:var(--green);">Sensor/Aktuator</span>
+      <span style="color:var(--orange)">→</span>
+      <span style="padding:6px 10px;border:1px solid var(--gold-dim);color:var(--gold);">IAS: Log & Alarm</span>
+      <span style="color:var(--orange)">→</span>
+      <span style="padding:6px 10px;border:1px solid var(--gray);color:var(--gray-light);">Bridge: Display</span>
+    </div>
+    <p>Sequential control diinisiasi dari Bridge/ECR via IAS. PLC mengeksekusi setiap langkah, mengumpulkan feedback dari sensor, dan melaporkan status kembali ke IAS. <strong>Setpoint dan urutan bisa dimodifikasi dari IAS tanpa harus ke engine room.</strong></p>
+  </div>
+</section>
+
+<!-- SECTION 7: CONTOH SISTEM -->
+<section id="sec-examples">
+  <div class="section-header">
+    <div class="section-tag">// 07 — CONTOH SISTEM SEKUENSIAL</div>
+    <h2 class="section-title">Implementasi Sequential Control di Kapal</h2>
+    <p class="section-desc">Empat contoh nyata implementasi sequential control pada permesinan kapal — dari yang paling kritis (main engine) hingga yang paling sering ditemui (ballast).</p>
+  </div>
+
+  <!-- Main Engine Start -->
+  <div style="margin-bottom:40px;">
+    <div style="display:flex;align-items:center;gap:14px;margin-bottom:20px;">
+      <span style="background:rgba(255,107,0,0.1);border:1px solid var(--orange-dim);color:var(--orange);font-family:'Orbitron',monospace;font-size:10px;letter-spacing:2px;padding:6px 16px;">A</span>
+      <div>
+        <div style="font-family:'Orbitron',monospace;font-size:16px;color:var(--white);font-weight:700;">Main Engine Start Sequence</div>
+        <div style="font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--gray);margin-top:2px;">Wärtsilä / MAN Energy Solutions — Sequential control WAJIB, tidak boleh manual</div>
+      </div>
+    </div>
+    <div class="seq-flow" id="meSeq">
+      <div class="seq-step" onclick="activateExSeq(event)">
+        <span class="seq-num">01</span>
+        <span class="seq-name">TURNING GEAR</span>
+        <p class="seq-desc">Turning gear harus dilepas. Interlock: jika turning gear masih engage → mesin tidak bisa start</p>
+        <span class="seq-detail">🔒 INTERLOCK: TG_DISENGAGED = TRUE</span>
+      </div>
+      <div class="seq-step" onclick="activateExSeq(event)">
+        <span class="seq-num">02</span>
+        <span class="seq-name">PRELUBE OIL</span>
+        <p class="seq-desc">Pompa minyak lumas dijalankan terlebih dahulu untuk melumasi semua bearing sebelum ada gerakan</p>
+        <span class="seq-detail">⏱️ TIMER: Pre-lube 60 detik</span>
+      </div>
+      <div class="seq-step" onclick="activateExSeq(event)">
+        <span class="seq-num">03</span>
+        <span class="seq-name">START AIR</span>
+        <p class="seq-desc">Udara starting (25-30 bar) diinjeksikan untuk memutar mesin hingga RPM tertentu</p>
+        <span class="seq-detail">📊 Cek: Oil pressure &gt; 1.5 bar</span>
+      </div>
+      <div class="seq-step" onclick="activateExSeq(event)">
+        <span class="seq-num">04</span>
+        <span class="seq-name">FUEL ON</span>
+        <p class="seq-desc">Bahan bakar diinjeksikan setelah RPM mencapai firing speed. Mesin mulai bertenaga sendiri</p>
+        <span class="seq-detail">📊 Cek: RPM ≥ 40% nominal</span>
+      </div>
+      <div class="seq-step" onclick="activateExSeq(event)">
+        <span class="seq-num">05</span>
+        <span class="seq-name">MONITOR</span>
+        <p class="seq-desc">IAS memantau semua parameter — suhu, tekanan, RPM, getaran selama warm-up</p>
+        <span class="seq-detail">⏱️ Warm-up: 15-30 menit</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Boiler -->
+  <div style="margin-bottom:40px;">
+    <div style="display:flex;align-items:center;gap:14px;margin-bottom:20px;">
+      <span style="background:rgba(0,200,212,0.1);border:1px solid var(--teal-dim);color:var(--teal);font-family:'Orbitron',monospace;font-size:10px;letter-spacing:2px;padding:6px 16px;">B</span>
+      <div>
+        <div style="font-family:'Orbitron',monospace;font-size:16px;color:var(--white);font-weight:700;">Boiler Start-Up Sequence (BMS)</div>
+        <div style="font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--gray);margin-top:2px;">Burner Management System — Siemens / Honeywell</div>
+      </div>
+    </div>
+    <div class="seq-flow" id="boilerSeq">
+      <div class="seq-step" onclick="activateExSeq(event)">
+        <span class="seq-num">01</span>
+        <span class="seq-name">PRE-PURGE</span>
+        <p class="seq-desc">Kipas (fan) memurnikan ruang bakar dari sisa gas sebelum ignition dimulai</p>
+        <span class="seq-detail">⏱️ PURGE TIME: 30 detik (minimum)</span>
+      </div>
+      <div class="seq-step" onclick="activateExSeq(event)">
+        <span class="seq-num">02</span>
+        <span class="seq-name">IGNITION</span>
+        <p class="seq-desc">Pilot burner menyala dengan transformer ignition. Percikan listrik menghasilkan api kecil</p>
+        <span class="seq-detail">⚡ Ignition transformer: 10kV</span>
+      </div>
+      <div class="seq-step" onclick="activateExSeq(event)">
+        <span class="seq-num">03</span>
+        <span class="seq-name">FLAME CHECK</span>
+        <p class="seq-desc">Detektor nyala (flame eye / UV scanner) memverifikasi api terbentuk dalam waktu 5 detik</p>
+        <span class="seq-detail">⏱️ FLAME FAIL TIME: 5 detik max</span>
+      </div>
+      <div class="seq-step" onclick="activateExSeq(event)">
+        <span class="seq-num">04</span>
+        <span class="seq-name">MAIN FUEL</span>
+        <p class="seq-desc">Setelah pilot flame terkonfirmasi, main fuel valve dibuka untuk api penuh</p>
+        <span class="seq-detail">🔒 INTERLOCK: FLAME_OK = TRUE</span>
+      </div>
+      <div class="seq-step" onclick="activateExSeq(event)">
+        <span class="seq-num">05</span>
+        <span class="seq-name">PID PRESSURE</span>
+        <p class="seq-desc">Kontrol tekanan uap beralih ke PID. Sequential selesai — continuous control mengambil alih</p>
+        <span class="seq-detail">🔁 Handover ke PID boiler</span>
+      </div>
+    </div>
+    <div class="info-box red" style="margin-top:16px;">
+      <div class="info-box-tag">// LOCKOUT: Flame Failure</div>
+      <p>Jika flame tidak terdeteksi dalam 5 detik (FLAME_FAIL), BMS secara otomatis <strong>menutup semua fuel valve dan mengunci sistem (LOCKOUT)</strong>. Reset manual oleh engineer wajib sebelum startup ulang. Ini contoh interlock keselamatan SOLAS pada sequential control.</p>
+    </div>
+  </div>
+
+  <!-- Ballast -->
+  <div style="margin-bottom:40px;">
+    <div style="display:flex;align-items:center;gap:14px;margin-bottom:20px;">
+      <span style="background:rgba(0,230,118,0.1);border:1px solid var(--green-dim);color:var(--green);font-family:'Orbitron',monospace;font-size:10px;letter-spacing:2px;padding:6px 16px;">C</span>
+      <div>
+        <div style="font-family:'Orbitron',monospace;font-size:16px;color:var(--white);font-weight:700;">Ballast System Sequence</div>
+        <div style="font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--gray);margin-top:2px;">Ballast Water Management — Kongsberg / Wartsila</div>
+      </div>
+    </div>
+    <div class="grid-2">
+      <div class="steps">
+        <div class="step-item">
+          <div class="step-num2">01</div>
+          <div>
+            <div class="step-title2">Valve Selection</div>
+            <p class="step-desc2">Operator memilih tangki tujuan. IAS mengirim perintah ke PLC untuk membuka valve yang sesuai.</p>
+            <div class="step-detail2">Interlock: Hanya valve yang dipilih yang terbuka. Valve lain terkunci tertutup.</div>
+          </div>
+        </div>
+        <div class="step-item">
+          <div class="step-num2">02</div>
+          <div>
+            <div class="step-title2">Valve Confirm</div>
+            <p class="step-desc2">PLC mengkonfirmasi valve sudah terbuka penuh melalui limit switch feedback sebelum memulai pompa.</p>
+            <div class="step-detail2">Interlock: VALVE_OPEN_FEEDBACK = TRUE</div>
+          </div>
+        </div>
+        <div class="step-item">
+          <div class="step-num2">03</div>
+          <div>
+            <div class="step-title2">Pump Start</div>
+            <p class="step-desc2">Pompa ballast dijalankan setelah valve terkonfirmasi terbuka. DOL atau Star-Delta starter.</p>
+            <div class="step-detail2">Cek: Motor running feedback, current normal</div>
+          </div>
+        </div>
+        <div class="step-item">
+          <div class="step-num2">04</div>
+          <div>
+            <div class="step-title2">Level PID Control</div>
+            <p class="step-desc2">Setelah pompa jalan, PID mengontrol level tangki. Sequential selesai, continuous control aktif.</p>
+            <div class="step-detail2">Cascade: outer loop level, inner loop flow rate</div>
+          </div>
+        </div>
+        <div class="step-item">
+          <div class="step-num2">05</div>
+          <div>
+            <div class="step-title2">Auto Stop</div>
+            <p class="step-desc2">Pompa otomatis berhenti saat level mencapai setpoint. Valve menutup secara berurutan.</p>
+            <div class="step-detail2">Shutdown: pump stop → valve tutup → reset</div>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div style="font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--green);letter-spacing:2px;text-transform:uppercase;margin-bottom:14px;">// BALLAST ANTI-OVERFLOW INTERLOCK</div>
+        <div class="formula">
+          IF TANK_LEVEL &gt; 95%<br>
+          THEN BALLAST_PUMP_STOP := TRUE;<br>
+               CLOSE_FILL_VALVE := TRUE;<br>
+               ALARM_OVERFLOW := TRUE;<br><br>
+          IF TRIM &gt; MAX_TRIM<br>
+          THEN PAUSE_SEQUENCE := TRUE;<br>
+               ALERT_OFFICER := TRUE;
+        </div>
+        <div class="info-box green" style="margin-top:14px;">
+          <div class="info-box-tag">// BWTS Integration</div>
+          <p>Ballast Water Treatment System (BWTS) modern menggunakan sequential control yang terintegrasi dengan pompa ballast. Setiap langkah treatment (filtering, UV/electrolysis) harus selesai sebelum air masuk tangki — wajib sesuai IMO BWM Convention.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Fuel Oil Transfer -->
+  <div>
+    <div style="display:flex;align-items:center;gap:14px;margin-bottom:20px;">
+      <span style="background:rgba(240,165,0,0.1);border:1px solid var(--gold-dim);color:var(--gold);font-family:'Orbitron',monospace;font-size:10px;letter-spacing:2px;padding:6px 16px;">D</span>
+      <div>
+        <div style="font-family:'Orbitron',monospace;font-size:16px;color:var(--white);font-weight:700;">Fuel Oil Transfer Sequence</div>
+        <div style="font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--gray);margin-top:2px;">Heavy Fuel Oil (HFO) / Marine Gas Oil (MGO) transfer system</div>
+      </div>
+    </div>
+    <div class="seq-flow">
+      <div class="seq-step" onclick="activateExSeq(event)">
+        <span class="seq-num">01</span>
+        <span class="seq-name">HEAT CHECK</span>
+        <p class="seq-desc">Cek suhu HFO sudah mencukupi (&gt;80°C) agar bisa dipompa — HFO dingin terlalu kental</p>
+        <span class="seq-detail">🌡️ Temp sensor: viscosimeter</span>
+      </div>
+      <div class="seq-step" onclick="activateExSeq(event)">
+        <span class="seq-num">02</span>
+        <span class="seq-name">PUMP START</span>
+        <p class="seq-desc">Transfer pump dijalankan. Feedback arus motor dikonfirmasi normal</p>
+        <span class="seq-detail">⚡ Star-Delta starter</span>
+      </div>
+      <div class="seq-step" onclick="activateExSeq(event)">
+        <span class="seq-num">03</span>
+        <span class="seq-name">HEATER ON</span>
+        <p class="seq-desc">Pemanas diaktifkan sepanjang jalur transfer untuk menjaga viskositas HFO</p>
+        <span class="seq-detail">🔥 Feedforward temperature control</span>
+      </div>
+      <div class="seq-step" onclick="activateExSeq(event)">
+        <span class="seq-num">04</span>
+        <span class="seq-name">PURIFIER</span>
+        <p class="seq-desc">HFO masuk purifier untuk memisahkan air dan kotoran sebelum ke service tank</p>
+        <span class="seq-detail">🔄 Fuzzy logic separation</span>
+      </div>
+      <div class="seq-step" onclick="activateExSeq(event)">
+        <span class="seq-num">05</span>
+        <span class="seq-name">LEVEL CTRL</span>
+        <p class="seq-desc">Level service tank dikontrol PID. Sequential selesai — continuous control mengambil alih</p>
+        <span class="seq-detail">📊 PID: service tank level</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION 8: HYBRID -->
+<section id="sec-hybrid">
+  <div class="section-header">
+    <div class="section-tag">// 08 — SEQUENTIAL + PID HYBRID</div>
+    <h2 class="section-title">"Semua Sistem Kapal = Sequential + Continuous"</h2>
+    <p class="section-desc">Konsep paling penting yang harus dipahami taruna: tidak ada sistem kapal yang hanya menggunakan satu metode kontrol. Sequential dan PID bekerja bersama — sequential untuk urutan operasi, PID untuk stabilitas nilai.</p>
+  </div>
+
+  <div style="display:flex;gap:20px;flex-wrap:wrap;margin-bottom:32px;">
+    <div class="hybrid-box seq" onclick="openModal('modal-boiler-hybrid')">
+      <div class="hybrid-icon">🔥</div>
+      <div class="hybrid-title">BOILER SYSTEM</div>
+      <div style="display:flex;gap:6px;justify-content:center;margin-bottom:10px;flex-wrap:wrap;">
+        <span class="pill pill-orange">Sequential: Startup</span>
+        <span class="pill pill-teal">PID: Pressure</span>
+      </div>
+      <p class="hybrid-desc">Start-up menggunakan sequential (purge → ignition → flame check). Setelah menyala, PID mengontrol tekanan uap.</p>
+      <div style="margin-top:10px;font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--teal);">▸ Klik detail</div>
+    </div>
+    <div class="hybrid-box pid" onclick="openModal('modal-engine-hybrid')">
+      <div class="hybrid-icon">⚙️</div>
+      <div class="hybrid-title">MAIN ENGINE</div>
+      <div style="display:flex;gap:6px;justify-content:center;margin-bottom:10px;flex-wrap:wrap;">
+        <span class="pill pill-orange">Sequential: Start/Stop</span>
+        <span class="pill pill-teal">PID: RPM+Fuel</span>
+      </div>
+      <p class="hybrid-desc">Starting air sequence menggunakan sequential. Governor (RPM control) menggunakan PID. Fuel injection juga PID.</p>
+      <div style="margin-top:10px;font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--teal);">▸ Klik detail</div>
+    </div>
+    <div class="hybrid-box both" onclick="openModal('modal-fwg-hybrid')">
+      <div class="hybrid-icon">💧</div>
+      <div class="hybrid-title">FRESH WATER GEN</div>
+      <div style="display:flex;gap:6px;justify-content:center;margin-bottom:10px;flex-wrap:wrap;">
+        <span class="pill pill-orange">Sequential: Startup</span>
+        <span class="pill pill-teal">PID: Salinity</span>
+      </div>
+      <p class="hybrid-desc">Startup sequence: vacuum pump, feed pump, heater. Operasi normal: PID conductivity untuk kontrol kualitas air.</p>
+      <div style="margin-top:10px;font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--teal);">▸ Klik detail</div>
+    </div>
+    <div class="hybrid-box seq" onclick="openModal('modal-purifier-hybrid')">
+      <div class="hybrid-icon">🌀</div>
+      <div class="hybrid-title">OIL PURIFIER</div>
+      <div style="display:flex;gap:6px;justify-content:center;margin-bottom:10px;flex-wrap:wrap;">
+        <span class="pill pill-orange">Sequential: Auto-start</span>
+        <span class="pill pill-purple">Fuzzy: Separation</span>
+      </div>
+      <p class="hybrid-desc">Fill bowl → accelerate → feed oil (sequential). Separation efficiency dikontrol Fuzzy Logic berbasis signal akustik.</p>
+      <div style="margin-top:10px;font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--teal);">▸ Klik detail</div>
+    </div>
+  </div>
+
+  <!-- Hybrid Diagram -->
+  <div class="info-box orange">
+    <div class="info-box-tag">// Diagram Sistem Hybrid — Boiler</div>
+    <div style="display:flex;flex-direction:column;gap:10px;padding:8px 0;">
+      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+        <span style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--orange);min-width:120px;letter-spacing:1px;">PHASE 1 (SEQ)</span>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;">
+          <span style="padding:5px 10px;border:1px solid var(--orange-dim);color:var(--orange-light);font-family:'Share Tech Mono',monospace;font-size:9px;">Purge Fan ON</span>
+          <span style="color:var(--gray)">→</span>
+          <span style="padding:5px 10px;border:1px solid var(--orange-dim);color:var(--orange-light);font-family:'Share Tech Mono',monospace;font-size:9px;">Pilot Ignition</span>
+          <span style="color:var(--gray)">→</span>
+          <span style="padding:5px 10px;border:1px solid var(--orange-dim);color:var(--orange-light);font-family:'Share Tech Mono',monospace;font-size:9px;">Flame Detect</span>
+          <span style="color:var(--gray)">→</span>
+          <span style="padding:5px 10px;border:1px solid var(--orange-dim);color:var(--orange-light);font-family:'Share Tech Mono',monospace;font-size:9px;">Main Fuel Open</span>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+        <span style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--teal);min-width:120px;letter-spacing:1px;">PHASE 2 (PID)</span>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;">
+          <span style="padding:5px 10px;border:1px solid var(--teal-dim);color:var(--teal);font-family:'Share Tech Mono',monospace;font-size:9px;">Steam Pressure PID</span>
+          <span style="color:var(--gray)">↺</span>
+          <span style="padding:5px 10px;border:1px solid var(--teal-dim);color:var(--teal);font-family:'Share Tech Mono',monospace;font-size:9px;">Feedwater PI</span>
+          <span style="color:var(--gray)">↺</span>
+          <span style="padding:5px 10px;border:1px solid var(--teal-dim);color:var(--teal);font-family:'Share Tech Mono',monospace;font-size:9px;">Combustion PID</span>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+        <span style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--red);min-width:120px;letter-spacing:1px;">FAULT (SEQ)</span>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;">
+          <span style="padding:5px 10px;border:1px solid var(--red-dim);color:var(--red);font-family:'Share Tech Mono',monospace;font-size:9px;">Flame Loss Detect</span>
+          <span style="color:var(--gray)">→</span>
+          <span style="padding:5px 10px;border:1px solid var(--red-dim);color:var(--red);font-family:'Share Tech Mono',monospace;font-size:9px;">Close All Fuel Valve</span>
+          <span style="color:var(--gray)">→</span>
+          <span style="padding:5px 10px;border:1px solid var(--red-dim);color:var(--red);font-family:'Share Tech Mono',monospace;font-size:9px;">LOCKOUT + Alarm IAS</span>
+        </div>
+      </div>
+    </div>
+    <p style="margin-top:12px;font-size:13px;color:var(--gray-light);line-height:1.7;">Transisi antara Sequential Phase 1 ke PID Phase 2 terjadi otomatis ketika semua kondisi startup terpenuhi. Jika terjadi fault, sistem kembali ke Sequential Shutdown yang terstruktur dan aman.</p>
+  </div>
+</section>
+
+<!-- SECTION 9: ACTUATOR -->
+<section id="sec-actuator">
+  <div class="section-header">
+    <div class="section-tag">// 09 — AKTUATOR & ELECTRICAL STARTER</div>
+    <h2 class="section-title">Jenis Aktuator dalam Sequential Control</h2>
+    <p class="section-desc">Dalam sequential control, PLC mengeluarkan perintah digital (DO = Digital Output 24VDC) ke aktuator. Hanya aktuator yang berupa motor listrik yang memerlukan electrical starter.</p>
+  </div>
+
+  <div class="grid-2" style="margin-bottom:28px;">
+    <div class="card" style="border-top-color:var(--teal)">
+      <span class="card-icon">⚡</span>
+      <div class="card-sub">Butuh Electrical Starter</div>
+      <div class="card-title">Motor Listrik</div>
+      <p class="card-desc">PLC mengirim sinyal DO (24VDC) → relay → kontaktor → motor. Starter melindungi motor dari arus start yang besar.</p>
+      <div style="margin-top:12px;font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--teal-dim);line-height:2;">
+        DOL → Pompa bilge, fan kecil (&lt;5kW)<br>
+        Star-Delta → Pompa ballast, kompressor (&gt;5kW)<br>
+        Soft Starter → Pompa cargo, winch, crane<br>
+        VFD/VSD → Thruster, HVAC, aux engine
+      </div>
+      <span class="pill pill-teal" style="margin-top:10px;display:inline-block;">✓ Pakai Starter</span>
+    </div>
+    <div class="card" style="border-top-color:var(--orange)">
+      <span class="card-icon">🔧</span>
+      <div class="card-sub">Dikontrol Langsung PLC</div>
+      <div class="card-title">Valve & Non-Motor Actuator</div>
+      <p class="card-desc">PLC mengirim sinyal langsung ke aktuator tanpa starter. DO 24VDC untuk solenoid, AO 4-20mA untuk valve positioner.</p>
+      <div style="margin-top:12px;font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--orange-dim);line-height:2;">
+        Solenoid valve → 24VDC dari DO PLC<br>
+        Pneumatic valve → 4-20mA ke positioner<br>
+        Hydraulic valve → 4-20mA servo valve<br>
+        Heater element → 4-20mA power controller
+      </div>
+      <span class="pill pill-orange" style="margin-top:10px;display:inline-block;">✗ Tidak Pakai Starter</span>
+    </div>
+  </div>
+
+  <!-- Starter table compact -->
+  <div style="overflow-x:auto;">
+    <table class="cmp-table">
+      <thead>
+        <tr><th>Jenis Starter</th><th>Prinsip</th><th>Arus Start</th><th>Penggunaan Kapal</th><th>PLC Interface</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>DOL (Direct On Line)</td><td>Motor langsung ke jaringan penuh</td><td style="color:var(--red);">5–8× nominal</td><td>Bilge pump, fan kecil, kompressor kecil</td><td>DO 24VDC → relay → kontaktor</td></tr>
+        <tr><td>Star-Delta</td><td>Start Y (33% torsi), pindah ke Δ saat 80% RPM</td><td style="color:var(--gold);">2–3× nominal</td><td>Ballast pump, kompressor, bow thruster kecil</td><td>DO → 2 kontaktor (Y dan Δ) + timer</td></tr>
+        <tr><td>Soft Starter</td><td>Tegangan naik bertahap via thyristor/SCR</td><td style="color:var(--green);">2–4× nominal</td><td>Cargo pump, winch, crane, HVAC fan besar</td><td>DO enable + AO ramp rate (4-20mA)</td></tr>
+        <tr><td>VFD / VSD</td><td>Ubah frekuensi & tegangan untuk kontrol kecepatan</td><td style="color:var(--green);">≤ nominal</td><td>Thruster, HVAC, aux engine, CPP pump</td><td>AO 4-20mA / 0-10V speed reference</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- SECTION 10: STUDY CASES -->
+<section id="sec-cases">
+  <div class="section-header">
+    <div class="section-tag">// 10 — STUDI KASUS</div>
+    <h2 class="section-title">Analisa Kegagalan Sistem Sekuensial</h2>
+    <p class="section-desc">Empat studi kasus nyata yang sering terjadi di kapal — analisis logika sequential, identifikasi penyebab, dan troubleshooting step-by-step.</p>
+  </div>
+
+  <!-- Case 1 -->
+  <div class="case-item" id="case1">
+    <div class="case-header" onclick="toggleCase('case1')">
+      <div class="case-title">
+        <span style="color:var(--red);font-size:22px;">⚠</span>
+        Studi Kasus 1: Main Engine Gagal Start
+        <span class="case-badge error">KRITIS</span>
+      </div>
+      <span class="case-chevron">▼</span>
+    </div>
+    <div class="case-body">
+      <div class="grid-2">
+        <div>
+          <div style="font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--red);letter-spacing:2px;margin-bottom:14px;">// SYMPTOM</div>
+          <p style="font-size:14px;color:var(--gray-light);line-height:1.8;margin-bottom:16px;">Mesin mendapat perintah start dari bridge, turning gear sudah dilepas, tapi mesin tidak cranking. IAS menampilkan "START FAIL — CHECK INTERLOCKS"</p>
+          
+          <div style="font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--orange);letter-spacing:2px;margin-bottom:12px;">// SEQUENTIAL LOGIC ANALYSIS</div>
+          <div class="formula">
+            Step 1: TURNING_GEAR_DISENGAGED = TRUE ✓<br>
+            Step 2: LUBE_OIL_PRESS &gt; 1.5 bar<br>
+            &nbsp;&nbsp;→ CURRENT VALUE: 0.8 bar ✗ FAIL<br><br>
+            RESULT: Sequence HALTED at Step 2<br>
+            INTERLOCK: STARTING_AIR blocked<br>
+            ALARM: "LOW LO PRESSURE — PRELUBE FAIL"
+          </div>
+        </div>
+        <div>
+          <div style="font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--green);letter-spacing:2px;margin-bottom:14px;">// ROOT CAUSE & TROUBLESHOOTING</div>
+          <div class="steps">
+            <div class="step-item" style="padding:12px 16px;">
+              <div class="step-num2" style="font-size:16px;">01</div>
+              <div>
+                <div class="step-title2">Cek Pre-lube Pump</div>
+                <p class="step-desc2">Pastikan pre-lube pump berputar. Dengarkan suara motor — jika diam, cek starter dan alarm motor.</p>
+              </div>
+            </div>
+            <div class="step-item" style="padding:12px 16px;">
+              <div class="step-num2" style="font-size:16px;">02</div>
+              <div>
+                <div class="step-title2">Cek Pressure Gauge Manual</div>
+                <p class="step-desc2">Bandingkan pembacaan IAS dengan gauge manual. Jika gauge manual normal → sensor tekanan rusak (false reading).</p>
+              </div>
+            </div>
+            <div class="step-item" style="padding:12px 16px;">
+              <div class="step-num2" style="font-size:16px;">03</div>
+              <div>
+                <div class="step-title2">Cek LO Level & Filter</div>
+                <p class="step-desc2">Level sump rendah atau strainer tersumbat dapat menyebabkan tekanan rendah. Periksa secara manual.</p>
+              </div>
+            </div>
+          </div>
+          <div class="info-box green" style="margin-top:14px;">
+            <div class="info-box-tag">// Pelajaran Sequential</div>
+            <p>Interlock prelube pressure mencegah mesin start dengan pelumasan tidak memadai — <strong>mencegah kerusakan bearing dan crankshaft</strong> yang sangat mahal. Inilah nilai sequential control dalam keselamatan.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Case 2 -->
+  <div class="case-item" id="case2">
+    <div class="case-header" onclick="toggleCase('case2')">
+      <div class="case-title">
+        <span style="color:var(--red);font-size:22px;">🔥</span>
+        Studi Kasus 2: Boiler Flame Failure
+        <span class="case-badge error">KRITIS</span>
+      </div>
+      <span class="case-chevron">▼</span>
+    </div>
+    <div class="case-body">
+      <div class="grid-2">
+        <div>
+          <div style="font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--red);letter-spacing:2px;margin-bottom:14px;">// SYMPTOM</div>
+          <p style="font-size:14px;color:var(--gray-light);line-height:1.8;margin-bottom:16px;">Alarm berbunyi: "BOILER FLAME FAILURE — LOCKOUT". Seluruh sistem boiler mati tiba-tiba. Steam pressure turun drastis. IAS menampilkan kondisi LOCKOUT.</p>
+          
+          <div style="font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--orange);letter-spacing:2px;margin-bottom:12px;">// BMS SEQUENTIAL RESPONSE</div>
+          <div class="formula">
+            Event: FLAME_DETECTOR = OFF<br>
+            during STEP 3 (flame check window)<br><br>
+            BMS Response:<br>
+            → CLOSE PILOT FUEL VALVE (immediate)<br>
+            → CLOSE MAIN FUEL VALVE (immediate)<br>
+            → CLOSE ATOMIZING STEAM VALVE<br>
+            → SET LOCKOUT FLAG = TRUE<br>
+            → Send ALARM to IAS<br>
+            → Require MANUAL RESET before restart
+          </div>
+        </div>
+        <div>
+          <div style="font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--gold);letter-spacing:2px;margin-bottom:14px;">// PENYEBAB UMUM & TINDAKAN</div>
+          <div style="font-size:13px;color:var(--gray-light);line-height:2;">
+            <div style="padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.05);"><span style="color:var(--white);font-weight:600;">Flame eye kotor/rusak</span> → Bersihkan optik UV scanner, ganti bila perlu</div>
+            <div style="padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.05);"><span style="color:var(--white);font-weight:600;">Fuel oil terlalu dingin</span> → Cek viscosity, pastikan preheater berfungsi</div>
+            <div style="padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.05);"><span style="color:var(--white);font-weight:600;">Atomizing steam rendah</span> → Cek steam pressure untuk atomisasi HFO</div>
+            <div style="padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.05);"><span style="color:var(--white);font-weight:600;">Air/gas dalam bahan bakar</span> → Purging line, cek fuel pump</div>
+            <div style="padding:8px 0;"><span style="color:var(--white);font-weight:600;">Burner nozzle tersumbat</span> → Bersihkan atau ganti nozzle</div>
+          </div>
+          <div class="info-box red" style="margin-top:14px;">
+            <div class="info-box-tag">// PERHATIAN KESELAMATAN</div>
+            <p>Jangan reset lockout tanpa investigasi penyebab! SOLAS melarang "blind restart" boiler setelah lockout. Lakukan <strong>purge manual min. 5 menit</strong> sebelum coba nyala ulang.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Case 3 -->
+  <div class="case-item" id="case3">
+    <div class="case-header" onclick="toggleCase('case3')">
+      <div class="case-title">
+        <span style="color:var(--gold);font-size:22px;">💧</span>
+        Studi Kasus 3: Ballast Tank Overflow
+        <span class="case-badge warn">PERINGATAN</span>
+      </div>
+      <span class="case-chevron">▼</span>
+    </div>
+    <div class="case-body">
+      <div class="grid-2">
+        <div>
+          <p style="font-size:14px;color:var(--gray-light);line-height:1.8;margin-bottom:16px;">Selama pengisian ballast, pompa tidak berhenti meskipun level tangki sudah mencapai 98%. Air hampir meluap dari overflow pipe.</p>
+          <div style="font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--orange);letter-spacing:2px;margin-bottom:12px;">// ANALISA LOGIKA</div>
+          <div class="formula">
+            Expected: IF LEVEL &gt; 95% → PUMP_STOP<br>
+            Actual: PUMP still running at 98%<br><br>
+            Kemungkinan masalah:<br>
+            1. Level sensor (radar) error/kotor<br>
+            2. PLC tidak menerima sinyal level<br>
+            3. Program logic salah (threshold wrong)<br>
+            4. Valve interlock tidak aktif
+          </div>
+        </div>
+        <div>
+          <div style="font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--green);letter-spacing:2px;margin-bottom:14px;">// TINDAKAN DARURAT & PENCEGAHAN</div>
+          <div class="steps">
+            <div class="step-item" style="padding:12px 16px;">
+              <div class="step-num2" style="font-size:16px;color:var(--red);">!!</div>
+              <div>
+                <div class="step-title2" style="color:var(--red);">Matikan Pompa Manual</div>
+                <p class="step-desc2">Segera hentikan pompa dari panel lokal. Tutup valve secara manual untuk mencegah overflow.</p>
+              </div>
+            </div>
+            <div class="step-item" style="padding:12px 16px;">
+              <div class="step-num2" style="font-size:16px;">01</div>
+              <div>
+                <div class="step-title2">Verifikasi Level Sensor</div>
+                <p class="step-desc2">Bandingkan dengan sounding manual. Jika sounding manual = 98% tapi IAS = 60% → sensor bermasalah.</p>
+              </div>
+            </div>
+            <div class="step-item" style="padding:12px 16px;">
+              <div class="step-num2" style="font-size:16px;">02</div>
+              <div>
+                <div class="step-title2">Cek PLC Program</div>
+                <p class="step-desc2">Review ladder diagram untuk interlock auto-stop. Cek apakah threshold ditulis dengan benar di program.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Case 4 -->
+  <div class="case-item" id="case4">
+    <div class="case-header" onclick="toggleCase('case4')">
+      <div class="case-title">
+        <span style="color:var(--teal);font-size:22px;">🔋</span>
+        Studi Kasus 4: Generator Gagal Sinkronisasi
+        <span class="case-badge warn">PERINGATAN</span>
+      </div>
+      <span class="case-chevron">▼</span>
+    </div>
+    <div class="case-body">
+      <div class="grid-2">
+        <div>
+          <p style="font-size:14px;color:var(--gray-light);line-height:1.8;margin-bottom:16px;">Generator bantu tidak bisa paralel ke bus bar. PMS menampilkan "SYNCHRONIZATION FAIL" setelah 3 percobaan. Hanya 1 genset yang beroperasi dengan beban penuh.</p>
+          <div class="formula">
+            PMS Sequential — Synchronization Sequence:<br>
+            Step 1: Start generator → RPM nominal<br>
+            Step 2: Adjust governor → f = 50 Hz ✓<br>
+            Step 3: Adjust AVR → V = 450V ✓<br>
+            Step 4: Phase sync window ← FAIL HERE<br>
+            &nbsp;&nbsp;→ dφ &gt; 5° saat close attempt<br><br>
+            Result: Circuit breaker tidak ditutup<br>
+            Action: Retry sequence (max 3x)<br>
+            After 3 fail: ALARM + Manual required
+          </div>
+        </div>
+        <div>
+          <div style="font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--teal);letter-spacing:2px;margin-bottom:14px;">// PENJELASAN & SOLUSI</div>
+          <p style="font-size:13px;color:var(--gray-light);line-height:1.8;margin-bottom:12px;">Sinkronisasi memerlukan frekuensi, tegangan, dan fase yang hampir identik antara generator baru dan bus bar yang sudah beroperasi.</p>
+          <div style="font-size:13px;color:var(--gray-light);line-height:2;">
+            <div style="padding:6px 0;"><span style="color:var(--teal)">▸</span> <strong style="color:var(--white)">Cek governor response</strong> — AVR dan governor harus responsif cukup cepat untuk sinkronisasi window</div>
+            <div style="padding:6px 0;"><span style="color:var(--teal)">▸</span> <strong style="color:var(--white)">Cek VR (Voltage Regulator)</strong> — tegangan fluktuatif bisa mencegah sinkronisasi</div>
+            <div style="padding:6px 0;"><span style="color:var(--teal)">▸</span> <strong style="color:var(--white)">Manual sinkronisasi darurat</strong> — gunakan synchroscope manual jika PMS gagal</div>
+          </div>
+          <div class="info-box teal" style="margin-top:14px;">
+            <div class="info-box-tag">// Sequential Safety</div>
+            <p>PMS membatasi percobaan sinkronisasi (max 3x) untuk mencegah kerusakan akibat paralel "kasar" yang bisa menghasilkan lonjakan arus besar dan merusak winding generator.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION 11: INTERACTIVE -->
+<section id="sec-interactive">
+  <div class="section-header">
+    <div class="section-tag">// 11 — LATIHAN INTERAKTIF</div>
+    <h2 class="section-title">Uji Pemahaman — Quiz & Simulasi</h2>
+    <p class="section-desc">Latihan interaktif untuk memvalidasi pemahaman materi. Quiz pilihan ganda, urutkan langkah sequential, dan simulasi sistem kapal.</p>
+  </div>
+
+  <!-- Quiz -->
+  <div style="font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--orange);letter-spacing:2px;text-transform:uppercase;margin-bottom:20px;">// A. QUIZ PEMAHAMAN (10 SOAL)</div>
+  <div id="quizContainer">
+    <!-- rendered by JS -->
+  </div>
+  <div style="margin-top:16px;display:flex;gap:10px;flex-wrap:wrap;">
+    <button class="btn btn-orange" onclick="checkAllQuiz()">▸ Cek Semua Jawaban</button>
+    <button class="btn btn-teal" onclick="resetQuiz()">↺ Reset Quiz</button>
+    <div style="margin-left:auto;font-family:'Share Tech Mono',monospace;font-size:12px;color:var(--gold);padding-top:10px;" id="quizScore"></div>
+  </div>
+
+  <!-- Drag Drop -->
+  <div style="font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--teal);letter-spacing:2px;text-transform:uppercase;margin:36px 0 20px;">// B. URUTKAN LANGKAH — BOILER STARTUP SEQUENCE</div>
+  <div style="font-size:14px;color:var(--gray-light);margin-bottom:16px;">Seret dan letakkan langkah-langkah berikut ke urutan yang benar:</div>
+  
+  <div class="dnd-label">📦 Langkah tersedia (seret ke area urutan di bawah):</div>
+  <div class="dnd-area" id="dndSource">
+    <!-- items rendered by JS -->
+  </div>
+  <div class="dnd-label" style="margin-top:16px;">🎯 Urutan yang benar (letakkan di sini, dari kiri ke kanan):</div>
+  <div class="dnd-area" id="dndTarget" style="min-height:80px;">
+    <!-- Drop zone -->
+  </div>
+  <div style="display:flex;gap:10px;margin-top:12px;flex-wrap:wrap;">
+    <button class="btn btn-green" onclick="checkDnd()">▸ Cek Urutan</button>
+    <button class="btn btn-orange" onclick="resetDnd()">↺ Reset</button>
+    <div id="dndResult" style="margin-left:auto;font-family:'Share Tech Mono',monospace;font-size:12px;padding-top:10px;"></div>
+  </div>
+
+  <!-- Simulator -->
+  <div style="font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--green);letter-spacing:2px;text-transform:uppercase;margin:36px 0 20px;">// C. SIMULASI PURIFIER AUTO-START SEQUENCE</div>
+  <div class="sim-wrap">
+    <div class="sim-title">// ALFA LAVAL MOPX 207 — AUTO-START SIMULATOR</div>
+    <div class="sim-steps" id="simSteps">
+      <div class="sim-step pending" id="ss0">IDLE</div>
+      <div class="sim-step pending" id="ss1">PRE-CHECK</div>
+      <div class="sim-step pending" id="ss2">FILL BOWL</div>
+      <div class="sim-step pending" id="ss3">ACCELERATE</div>
+      <div class="sim-step pending" id="ss4">FEED OIL</div>
+      <div class="sim-step pending" id="ss5">RUNNING</div>
+      <div class="sim-step pending" id="ss6">SHUTDOWN</div>
+    </div>
+    <div class="sim-log" id="simLog">
+      <div style="color:var(--orange);margin-bottom:4px;">[SYS] Purifier Simulator Ready</div>
+      <div>[SYS] Klik START untuk memulai sekuens</div>
+    </div>
+    <div class="sim-btns">
+      <button class="btn btn-green" id="btnStart" onclick="simStart()">▸ START SEQUENCE</button>
+      <button class="btn btn-red" id="btnStop" onclick="simStop()" disabled>■ EMERGENCY STOP</button>
+      <button class="btn btn-orange" id="btnReset" onclick="simReset()" disabled>↺ RESET</button>
+      <div style="margin-left:auto;">
+        <div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--gray);letter-spacing:1px;">BOWL RPM</div>
+        <div style="font-family:'Orbitron',monospace;font-size:20px;color:var(--teal);" id="simRpm">0</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION 12: SUMMARY -->
+<section id="sec-summary">
+  <div class="section-header">
+    <div class="section-tag">// 12 — KESIMPULAN</div>
+    <h2 class="section-title">Poin-Poin Kunci yang Harus Dikuasai</h2>
+    <p class="section-desc">Ringkasan komprehensif dari seluruh modul — pastikan semua poin ini dipahami dengan baik sebelum praktik lapangan.</p>
+  </div>
+
+  <div class="grid-2" style="margin-bottom:28px;">
+    <div>
+      <div style="font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--orange);letter-spacing:2px;text-transform:uppercase;margin-bottom:16px;">// KONSEP UTAMA</div>
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <div class="summary-item">
+          <div class="sum-dot" style="background:var(--orange)"></div>
+          <div><span class="sum-name">Sequential Control</span><span class="sum-sub">Operasi berurutan step-by-step berbasis kondisi dan interlock</span></div>
+          <span class="sum-count">Step</span>
+        </div>
+        <div class="summary-item">
+          <div class="sum-dot" style="background:var(--teal)"></div>
+          <div><span class="sum-name">Continuous Control (PID)</span><span class="sum-sub">Menjaga nilai variabel kontinu pada setpoint secara terus-menerus</span></div>
+          <span class="sum-count" style="color:var(--teal)">PID</span>
+        </div>
+        <div class="summary-item">
+          <div class="sum-dot" style="background:var(--gold)"></div>
+          <div><span class="sum-name">PLC = Eksekutor</span><span class="sum-sub">Menjalankan Sequential, PID, On/Off, Fuzzy — sesuai program</span></div>
+          <span class="sum-count" style="color:var(--gold)">HW+SW</span>
+        </div>
+        <div class="summary-item">
+          <div class="sum-dot" style="background:var(--green)"></div>
+          <div><span class="sum-name">IAS = Integrasi</span><span class="sum-sub">Supervisory system yang mengumpulkan data semua PLC ke satu layar</span></div>
+          <span class="sum-count" style="color:var(--green)">SCADA</span>
+        </div>
+        <div class="summary-item">
+          <div class="sum-dot" style="background:var(--purple)"></div>
+          <div><span class="sum-name">DCS = Sistem Besar</span><span class="sum-sub">Untuk DP, PMS, Cargo LNG — ribuan I/O, redundansi penuh</span></div>
+          <span class="sum-count" style="color:var(--purple)">DCS</span>
+        </div>
+      </div>
+    </div>
+    <div>
+      <div style="font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--teal);letter-spacing:2px;text-transform:uppercase;margin-bottom:16px;">// PERBEDAAN PENTING</div>
+      <div class="info-box teal" style="margin-top:0;margin-bottom:14px;">
+        <div class="info-box-tag">// Sequential vs PID — Ingat Ini!</div>
+        <p><strong>Sequential</strong> mengontrol <em>urutan operasi</em> (kapan sesuatu dimulai dan berhenti).<br><strong>PID</strong> mengontrol <em>nilai variabel</em> (seberapa besar valve dibuka, seberapa cepat motor berputar).<br><br>Contoh boiler: Sequential menentukan kapan burner menyala. PID menentukan seberapa banyak bahan bakar yang dikirim untuk menjaga tekanan 7 bar.</p>
+      </div>
+      <div class="info-box orange" style="margin-top:0;margin-bottom:14px;">
+        <div class="info-box-tag">// Electrical Starter — Ingat Ini!</div>
+        <p>Starter HANYA untuk <strong>motor listrik</strong>. Valve pneumatik, solenoid valve, servo valve, heater element dikontrol langsung oleh output PLC (4-20mA atau 24VDC) <strong>tanpa starter</strong>.</p>
+      </div>
+      <div class="info-box green" style="margin-top:0">
+        <div class="info-box-tag">// Interlock — Ingat Ini!</div>
+        <p>Interlock adalah logika yang <strong>mencegah operasi berbahaya</strong>. Tanpa interlock prelube pressure, main engine bisa start tanpa pelumasan → bearing hancur. Interlock adalah nyawa sequential control.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="info-box orange">
+    <div class="info-box-tag">// Formula Ingat Cepat untuk Ujian</div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:16px;">
+      <div style="text-align:center;padding:14px;border:1px solid rgba(255,107,0,0.2);">
+        <div style="font-family:'Orbitron',monospace;font-size:11px;color:var(--orange);margin-bottom:6px;">PLC</div>
+        <div style="font-size:14px;color:var(--white);">Otak / Controller</div>
+        <div style="font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--gray);margin-top:4px;">Hardware + Program</div>
+      </div>
+      <div style="text-align:center;padding:14px;border:1px solid rgba(255,107,0,0.2);">
+        <div style="font-family:'Orbitron',monospace;font-size:11px;color:var(--orange);margin-bottom:6px;">Sequential</div>
+        <div style="font-size:14px;color:var(--white);">Urutan Operasi</div>
+        <div style="font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--gray);margin-top:4px;">IF-THEN, Interlock, Timer</div>
+      </div>
+      <div style="text-align:center;padding:14px;border:1px solid rgba(0,200,212,0.2);">
+        <div style="font-family:'Orbitron',monospace;font-size:11px;color:var(--teal);margin-bottom:6px;">PID</div>
+        <div style="font-size:14px;color:var(--white);">Stabilitas Nilai</div>
+        <div style="font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--gray);margin-top:4px;">P + I + D, continuous</div>
+      </div>
+      <div style="text-align:center;padding:14px;border:1px solid rgba(240,165,0,0.2);">
+        <div style="font-family:'Orbitron',monospace;font-size:11px;color:var(--gold);margin-bottom:6px;">IAS/SCADA</div>
+        <div style="font-size:14px;color:var(--white);">Supervisory Monitor</div>
+        <div style="font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--gray);margin-top:4px;">Data center semua PLC</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION 13: REFERENCES -->
+<section id="sec-references">
+  <div class="section-header">
+    <div class="section-tag">// 13 — REFERENSI</div>
+    <h2 class="section-title">Sumber Referensi & Bacaan Lanjutan</h2>
+    <p class="section-desc">Link ke dokumentasi resmi, manual teknis, dan regulasi yang menjadi dasar materi ini. Klik untuk membuka di tab baru.</p>
+  </div>
+
+  <div class="ref-grid">
+    <div class="ref-card">
+      <div class="ref-title">Wärtsilä Technical Documentation</div>
+      <div class="ref-org">// WÄRTSILÄ CORPORATION</div>
+      <p class="ref-desc">Dokumentasi teknis resmi sistem kontrol mesin Wärtsilä, termasuk PLC automation dan sequential control untuk propulsion systems.</p>
+      <a href="https://www.wartsila.com/marine/products/marine-propulsion/engines" target="_blank" class="ref-link">▸ wartsila.com/marine →</a>
+    </div>
+    <div class="ref-card">
+      <div class="ref-title">MAN Energy Solutions — Engine Operating Instructions</div>
+      <div class="ref-org">// MAN ENERGY SOLUTIONS SE</div>
+      <p class="ref-desc">Manual operasi dan kontrol otomasi untuk mesin MAN ME-C/ME-GI series, termasuk logika sequential starting dan safety interlock.</p>
+      <a href="https://www.man-es.com/marine/products/two-stroke-engines" target="_blank" class="ref-link">▸ man-es.com/marine →</a>
+    </div>
+    <div class="ref-card">
+      <div class="ref-title">IEC 61131-3 PLC Programming Standard</div>
+      <div class="ref-org">// INTERNATIONAL ELECTROTECHNICAL COMMISSION</div>
+      <p class="ref-desc">Standar internasional pemrograman PLC yang mendefinisikan 5 bahasa: LD, FBD, ST, IL, dan SFC untuk sequential function chart.</p>
+      <a href="https://webstore.iec.ch/publication/4552" target="_blank" class="ref-link">▸ IEC Webstore →</a>
+    </div>
+    <div class="ref-card">
+      <div class="ref-title">SOLAS — Safety of Life at Sea</div>
+      <div class="ref-org">// INTERNATIONAL MARITIME ORGANIZATION</div>
+      <p class="ref-desc">Konvensi keselamatan maritim internasional. Chapter II-1 memuat persyaratan alarm otomatis, shutdown sistem, dan control systems.</p>
+      <a href="https://www.imo.org/en/About/Conventions/Pages/International-Convention-for-the-Safety-of-Life-at-Sea-(SOLAS),-1974.aspx" target="_blank" class="ref-link">▸ imo.org/SOLAS →</a>
+    </div>
+    <div class="ref-card">
+      <div class="ref-title">ABB Marine & Ports — Automation Systems</div>
+      <div class="ref-org">// ABB GROUP</div>
+      <p class="ref-desc">Dokumentasi IAS/SCADA dan PLC systems dari ABB untuk kapal komersial, termasuk Integrated Bridge System dan Engine Room Automation.</p>
+      <a href="https://new.abb.com/marine" target="_blank" class="ref-link">▸ abb.com/marine →</a>
+    </div>
+    <div class="ref-card">
+      <div class="ref-title">Kongsberg Maritime — Automation & Control</div>
+      <div class="ref-org">// KONGSBERG MARITIME</div>
+      <p class="ref-desc">Sistem DP (Dynamic Positioning), IAS, dan PMS dari Kongsberg. Dokumentasi teknis tersedia untuk sistem K-Chief dan K-Pos.</p>
+      <a href="https://www.kongsberg.com/maritime/products/automation-and-control/" target="_blank" class="ref-link">▸ kongsberg.com/maritime →</a>
+    </div>
+    <div class="ref-card">
+      <div class="ref-title">Siemens — Marine Automation</div>
+      <div class="ref-org">// SIEMENS AG — SIMATIC PLC</div>
+      <p class="ref-desc">Dokumentasi SIMATIC PLC S7 series untuk aplikasi marine. Termasuk TIA Portal programming untuk sequential control dan PID.</p>
+      <a href="https://www.siemens.com/global/en/markets/marine-shipbuilding.html" target="_blank" class="ref-link">▸ siemens.com/marine →</a>
+    </div>
+    <div class="ref-card">
+      <div class="ref-title">MARPOL Annex VI — Air Pollution Prevention</div>
+      <div class="ref-org">// IMO — INTERNATIONAL MARITIME ORGANIZATION</div>
+      <p class="ref-desc">Peraturan pencegahan polusi udara dari kapal. Dasar hukum implementasi scrubber, EGR, dan SCR control systems.</p>
+      <a href="https://www.imo.org/en/OurWork/Environment/Pages/Air-Pollution.aspx" target="_blank" class="ref-link">▸ imo.org/MARPOL →</a>
+    </div>
+    <div class="ref-card">
+      <div class="ref-title">Rolls-Royce Marine — Thruster & Automation</div>
+      <div class="ref-org">// ROLLS-ROYCE POWER SYSTEMS</div>
+      <p class="ref-desc">Dokumentasi sistem thruster, DP, dan bridge automation. Termasuk sequential control untuk azimuth thruster dan dynamic positioning.</p>
+      <a href="https://www.rolls-royce.com/products-and-services/marine.aspx" target="_blank" class="ref-link">▸ rolls-royce.com/marine →</a>
+    </div>
+  </div>
+
+  <div class="info-box teal" style="margin-top:28px;">
+    <div class="info-box-tag">// Politeknik Pelayaran Surabaya — Laboratorium Teknika</div>
+    <p>Materi ini dikembangkan berdasarkan kurikulum D-III/D-IV Teknika semester IV. Untuk praktik langsung, gunakan simulator PLC (Siemens S7 / Omron / Allen-Bradley) yang tersedia di Laboratorium Otomasi. Lihat jadwal penggunaan lab dengan koordinator teknika.</p>
+    <div style="margin-top:14px;display:flex;gap:10px;flex-wrap:wrap;">
+      <a href="https://poltekpel-surabaya.ac.id" target="_blank" style="text-decoration:none;">
+        <span style="display:inline-block;padding:8px 16px;border:1px solid var(--teal-dim);color:var(--teal);font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:1px;transition:all 0.2s;" onmouseover="this.style.background='rgba(0,200,212,0.1)'" onmouseout="this.style.background='transparent'">▸ Poltek Pelayaran Surabaya →</a>
+      </a>
+      <a href="https://hangtuah.ac.id" target="_blank" style="text-decoration:none;">
+        <span style="display:inline-block;padding:8px 16px;border:1px solid var(--gold-dim);color:var(--gold);font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:1px;transition:all 0.2s;" onmouseover="this.style.background='rgba(240,165,0,0.1)'" onmouseout="this.style.background='transparent'">▸ Universitas Hang Tuah Surabaya →</a>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<div id="footer">
+  <div class="footer-logo">SEQUENTIAL CONTROL SYSTEM — PERMESINAN KAPAL</div>
+  <div class="footer-line"></div>
+  <div class="footer-author">Rafael Sukirno, CE</div>
+  <div class="footer-inst">
+    Instruktur Marine Engineering<br>
+    Politeknik Pelayaran Surabaya &amp; Universitas Hang Tuah Surabaya<br>
+    <span style="color:var(--orange)">Semester IV — D-III/D-IV Teknika | Modul v1.0</span>
+  </div>
+  <div style="margin-top:16px;font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--gray);max-width:700px;margin-left:auto;margin-right:auto;line-height:1.8;">
+    Referensi: Wärtsilä Technical Manual | MAN ES Operating Instructions | ABB Marine | Kongsberg Maritime<br>
+    IEC 61131-3 PLC Standard | SOLAS Chapter II-1 | MARPOL Annex VI | IMO BWM Convention
+  </div>
+</div>
+
+</div><!-- /main -->
+
+<!-- MODALS -->
+<div class="modal-overlay" id="modal-setpoint">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">🎯 SETPOINT</div>
+      <button class="modal-close" onclick="closeModal('modal-setpoint')">✕</button>
+    </div>
+    <div class="modal-body">
+      <h4>Definisi</h4>
+      <p>Setpoint (SP) adalah nilai target yang ingin dicapai atau dijaga oleh sistem kontrol. Nilai ini ditetapkan oleh operator atau engineer berdasarkan kebutuhan operasional dan spesifikasi teknis mesin.</p>
+      <h4>Contoh Setpoint di Kapal</h4>
+      <ul>
+        <li><strong>Suhu air pendingin ME:</strong> SP = 85°C</li>
+        <li><strong>Tekanan uap boiler:</strong> SP = 7 bar</li>
+        <li><strong>Level tangki ballast:</strong> SP = 80%</li>
+        <li><strong>pH scrubber washwater:</strong> SP = 6.5</li>
+        <li><strong>RPM generator:</strong> SP = 1500 rpm (50 Hz)</li>
+      </ul>
+      <h4>Siapa yang Mengatur Setpoint?</h4>
+      <p>Setpoint bisa diubah dari IAS console (ECR/Bridge) tanpa harus ke lapangan. Perubahan setpoint dilog secara otomatis untuk audit trail dan pelaporan.</p>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-sensor">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">📡 SENSOR</div>
+      <button class="modal-close" onclick="closeModal('modal-sensor')">✕</button>
+    </div>
+    <div class="modal-body">
+      <h4>Fungsi Sensor dalam Kontrol</h4>
+      <p>Sensor mengukur kondisi aktual proses dan mengubahnya menjadi sinyal listrik yang bisa dibaca PLC. Akurasi sensor sangat kritis — sensor yang salah menghasilkan kontrol yang salah.</p>
+      <h4>Jenis Sensor di Kapal</h4>
+      <ul>
+        <li><strong>Thermocouple / RTD PT100:</strong> Suhu (−200 hingga +1000°C)</li>
+        <li><strong>Pressure Transmitter:</strong> Tekanan (4-20mA output)</li>
+        <li><strong>Coriolis/Turbine Flow Meter:</strong> Laju aliran massa/volume</li>
+        <li><strong>Radar Level Gauge:</strong> Level tangki ballast/cargo</li>
+        <li><strong>pH Electrode:</strong> Keasaman scrubber / cooling water</li>
+        <li><strong>Tachometer / Encoder:</strong> RPM dan posisi</li>
+      </ul>
+      <h4>Signal Standard</h4>
+      <p>Standar industri: <strong>4-20mA</strong> (paling umum, tahan noise), <strong>0-10VDC</strong>, <strong>Profibus/HART</strong> untuk smart transmitter yang mengirim data diagnostik.</p>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-controller">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">🖥️ CONTROLLER (PLC)</div>
+      <button class="modal-close" onclick="closeModal('modal-controller')">✕</button>
+    </div>
+    <div class="modal-body">
+      <h4>Apa itu PLC?</h4>
+      <p>Programmable Logic Controller (PLC) adalah komputer industri yang dirancang untuk kontrol proses secara real-time. Berbeda dari komputer biasa, PLC dirancang tahan terhadap getaran, suhu ekstrem, dan interferensi elektromagnetik — kondisi yang umum di engine room kapal.</p>
+      <h4>Merek PLC Umum di Kapal</h4>
+      <ul>
+        <li><strong>Siemens SIMATIC S7-300/400/1500</strong> — paling umum di kapal Eropa</li>
+        <li><strong>ABB AC500</strong> — banyak di sistem ballast dan power management</li>
+        <li><strong>Omron CX / NX</strong> — sistem kecil dan medium</li>
+        <li><strong>Allen-Bradley ControlLogix</strong> — kapal Amerika</li>
+        <li><strong>Schneider Modicon M340</strong> — sistem auxiliary</li>
+      </ul>
+      <h4>Perbedaan PLC vs DCS</h4>
+      <p>PLC cocok untuk sistem lokal (boiler, purifier) dengan I/O terbatas. DCS (Distributed Control System) untuk sistem besar seperti DP, PMS kapal besar dengan ribuan I/O tersebar di seluruh kapal.</p>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-actuator">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">🔧 AKTUATOR</div>
+      <button class="modal-close" onclick="closeModal('modal-actuator')">✕</button>
+    </div>
+    <div class="modal-body">
+      <h4>Jenis Aktuator di Kapal</h4>
+      <ul>
+        <li><strong>Motor Listrik</strong> — pompa, fan, kompressor, winch. Butuh starter (DOL/Star-Delta/VFD)</li>
+        <li><strong>Valve Pneumatik</strong> — dikontrol 4-20mA ke positioner. Tidak butuh starter</li>
+        <li><strong>Valve Hidrolik</strong> — steering gear, CPP. Servo valve dikontrol ±10VDC</li>
+        <li><strong>Solenoid Valve</strong> — dikontrol 24VDC dari DO PLC. Tidak butuh starter</li>
+        <li><strong>Heater Element</strong> — dikontrol 4-20mA ke power controller. Tidak butuh starter</li>
+      </ul>
+      <h4>Penting: Starter Hanya untuk Motor!</h4>
+      <p>Banyak taruna salah memahami bahwa semua aktuator butuh starter. <strong>Electrical starter hanya untuk motor listrik</strong>. Aktuator non-motor dikontrol langsung dari output analog (AO) atau digital (DO) PLC.</p>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-bridge">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">🧭 BRIDGE / ECR LEVEL 3</div>
+      <button class="modal-close" onclick="closeModal('modal-bridge')">✕</button>
+    </div>
+    <div class="modal-body">
+      <h4>Fungsi Level 3</h4>
+      <p>Level tertinggi dalam hierarki otomasi kapal. Operator dan perwira dapat memonitor dan mengontrol seluruh sistem kapal dari satu posisi tanpa harus turun ke engine room.</p>
+      <h4>Sistem yang Ada di Bridge/ECR</h4>
+      <ul>
+        <li><strong>Autopilot System</strong> — Kongsberg, Raytheon</li>
+        <li><strong>DP Operator Console</strong> — Kongsberg K-Pos, Rolls-Royce</li>
+        <li><strong>Engine Telegraph</strong> — komunikasi perintah kecepatan</li>
+        <li><strong>Alarm Management System</strong> — semua alarm PLC dari IAS</li>
+        <li><strong>ECDIS</strong> — Electronic Chart Display</li>
+      </ul>
+      <h4>Protokol Komunikasi</h4>
+      <p><strong>NMEA 2000</strong> untuk navigasi, <strong>Ethernet/Modbus TCP</strong> untuk IAS, <strong>GMDSS</strong> untuk distress communication.</p>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-ias">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">📊 IAS / SCADA — LEVEL 2</div>
+      <button class="modal-close" onclick="closeModal('modal-ias')">✕</button>
+    </div>
+    <div class="modal-body">
+      <h4>Apa itu IAS?</h4>
+      <p>Integrated Automation System (IAS) adalah sistem supervisory yang mengintegrasikan data dari semua PLC dan sistem kapal ke satu platform terpusat. Setara dengan SCADA di industri darat.</p>
+      <h4>Fungsi IAS di Kapal</h4>
+      <ul>
+        <li>Monitoring semua sensor dan parameter secara real-time</li>
+        <li>Alarm management dan logging (wajib SOLAS)</li>
+        <li>Trending dan analisa data historis</li>
+        <li>Remote setpoint dari ECR</li>
+        <li>Performance monitoring (SFOCo, heat balance)</li>
+      </ul>
+      <h4>Merek IAS Umum</h4>
+      <p><strong>Kongsberg K-Chief</strong>, <strong>ABB Onboard DC</strong>, <strong>Rolls-Royce IAS</strong>, <strong>Wartsila NACOS</strong></p>
+      <h4>Fieldbus ke PLC</h4>
+      <p><strong>Profibus DP</strong> (paling umum), <strong>DeviceNet</strong>, <strong>EtherNet/IP</strong>, <strong>Modbus RTU/TCP</strong></p>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-plc-hier">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">🖥️ PLC LEVEL 1 — EKSEKUTOR</div>
+      <button class="modal-close" onclick="closeModal('modal-plc-hier')">✕</button>
+    </div>
+    <div class="modal-body">
+      <h4>Peran PLC dalam Hierarki</h4>
+      <p>PLC di Level 1 adalah eksekutor langsung perintah kontrol. Ia menerima setpoint dari IAS (Level 2), mengeksekusi program sequential dan PID, serta mengirim data balik ke IAS untuk monitoring.</p>
+      <h4>Typical PLC di Kapal</h4>
+      <ul>
+        <li><strong>Boiler PLC</strong> — mengontrol BMS sequence + steam pressure PID</li>
+        <li><strong>Purifier PLC</strong> — auto-start sequence + bowl speed control</li>
+        <li><strong>FWG PLC</strong> — startup sequence + salinity PID</li>
+        <li><strong>Scrubber PLC</strong> — pH dosing PID + blower control</li>
+        <li><strong>Steering PLC</strong> — rudder angle feedback loop + hydraulic control</li>
+      </ul>
+      <h4>Koneksi ke IAS</h4>
+      <p>Via <strong>Profibus DP</strong> atau <strong>Modbus RTU</strong>. Setiap PLC mengirim status, alarm, dan nilai process variable ke IAS setiap siklus scan. Latency biasanya &lt;100ms.</p>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-boiler-hybrid">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">🔥 BOILER — HYBRID CONTROL</div>
+      <button class="modal-close" onclick="closeModal('modal-boiler-hybrid')">✕</button>
+    </div>
+    <div class="modal-body">
+      <h4>Sequential Phase (Startup)</h4>
+      <p>Urutan startup boiler menggunakan BMS (Burner Management System): <strong>Purge → Pilot Ignition → Flame Detection → Main Fuel</strong>. Setiap langkah memiliki interlock dan timer yang ketat.</p>
+      <h4>PID Phase (Normal Operation)</h4>
+      <p>Setelah nyala, PID mengambil alih:</p>
+      <ul>
+        <li><strong>Steam Pressure PID</strong> — mengontrol posisi burner modulating valve untuk menjaga tekanan 7 bar</li>
+        <li><strong>Feedwater PI</strong> — mengontrol feedwater pump speed berdasarkan level drum</li>
+        <li><strong>Combustion Air PID</strong> — O₂ trimming untuk efisiensi pembakaran</li>
+      </ul>
+      <h4>Shutdown Sequential</h4>
+      <p>Shutdown juga menggunakan sequential: <strong>Close main fuel → Purge → Fan off</strong>. Tidak boleh langsung mematikan semua sekaligus.</p>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-engine-hybrid">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">⚙️ MAIN ENGINE — HYBRID CONTROL</div>
+      <button class="modal-close" onclick="closeModal('modal-engine-hybrid')">✕</button>
+    </div>
+    <div class="modal-body">
+      <h4>Sequential: Starting Sequence</h4>
+      <ul>
+        <li>Turning gear dilepas (interlock)</li>
+        <li>Pre-lube pump ON → pressure check</li>
+        <li>Starting air valve buka</li>
+        <li>Engine cranking hingga firing speed</li>
+        <li>Fuel injection ON</li>
+      </ul>
+      <h4>PID: Running Operation</h4>
+      <ul>
+        <li><strong>Governor (RPM PID)</strong> — mengontrol fuel rack position untuk menjaga RPM sesuai setpoint</li>
+        <li><strong>Fuel Injection Timing PID</strong> — presisi 0.1ms untuk efisiensi dan emisi</li>
+        <li><strong>Cooling Water Temperature PID</strong> — fresh water cooler bypass valve</li>
+        <li><strong>Turbocharger Boost PID</strong> — waste gate actuator control</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-fwg-hybrid">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">💧 FRESH WATER GENERATOR — HYBRID</div>
+      <button class="modal-close" onclick="closeModal('modal-fwg-hybrid')">✕</button>
+    </div>
+    <div class="modal-body">
+      <h4>Sequential: Startup</h4>
+      <ul>
+        <li>Cek cooling water suhu &gt;70°C (dari jacket water ME)</li>
+        <li>Vacuum pump ON → buat tekanan rendah</li>
+        <li>Feed pump ON → masukkan sea water</li>
+        <li>Monitor vacuum pressure mencapai &lt;0.1 bar</li>
+        <li>Open distillate valve</li>
+      </ul>
+      <h4>PID: Operasi Normal</h4>
+      <ul>
+        <li><strong>Conductivity/Salinity PID</strong> — mengontrol brine pump speed. Jika salinitas terlalu tinggi, brine level dinaikkan untuk meningkatkan evaporasi</li>
+        <li><strong>Vacuum PID</strong> — mengontrol cooling water flow valve</li>
+        <li><strong>Production Rate Feedforward</strong> — antisipasi perubahan suhu jacket water</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-purifier-hybrid">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">🌀 OIL PURIFIER — HYBRID CONTROL</div>
+      <button class="modal-close" onclick="closeModal('modal-purifier-hybrid')">✕</button>
+    </div>
+    <div class="modal-body">
+      <h4>Sequential: Auto-Start (SFC)</h4>
+      <ul>
+        <li>STEP 0: IDLE — semua OFF</li>
+        <li>STEP 1: Fill bowl dengan fresh water (30 detik)</li>
+        <li>STEP 2: Motor ON, accelerate ke 7200 RPM</li>
+        <li>STEP 3: Konfirmasi RPM, buka oil feed valve</li>
+        <li>STEP 4: Normal separation operation</li>
+        <li>STEP 5 (fault): Safe stop sequence</li>
+      </ul>
+      <h4>Fuzzy Logic: Separation Control</h4>
+      <p>Alfa Laval menggunakan Fuzzy Logic untuk mengoptimalkan separation efficiency berdasarkan sinyal akustik (noise sensor) dan back pressure. Aturan IF-THEN disesuaikan dengan karakteristik oli yang berbeda.</p>
+      <p style="margin-top:10px;"><strong>Interlock kritis:</strong> Oil feed valve TIDAK bisa dibuka sebelum RPM mencapai 7200. Jika dibuka sebelumnya, oli akan terlempar keluar dan merusak bowl.</p>
+    </div>
+  </div>
+</div>
+
+<script>
+// ============================================================
+// QUIZ DATA
+// ============================================================
+const quizData = [
+  {
+    q:"Apa perbedaan utama antara Sequential Control dan PID Control?",
+    options:["Sequential untuk nilai kontinu, PID untuk urutan operasi","Sequential untuk urutan step-by-step, PID untuk nilai variabel kontinu","Keduanya sama saja, hanya nama berbeda","Sequential hanya untuk motor listrik, PID untuk valve"],
+    answer:1,
+    explain:"Sequential mengontrol URUTAN operasi (kapan sesuatu dimulai/berhenti), PID mengontrol NILAI VARIABEL (seberapa besar koreksi diperlukan secara kontinu)."
+  },
+  {
+    q:"Dalam Sequential Control, apa fungsi INTERLOCK?",
+    options:["Mempercepat urutan operasi","Mencegah langkah berbahaya dilakukan jika kondisi belum terpenuhi","Mengurangi konsumsi daya","Menghubungkan PLC ke IAS"],
+    answer:1,
+    explain:"Interlock adalah pengaman yang MENCEGAH langkah berikutnya dieksekusi jika kondisi prasyarat belum terpenuhi. Contoh: prelube pressure harus >1.5 bar sebelum main engine bisa start."
+  },
+  {
+    q:"Bahasa pemrograman PLC yang paling cocok untuk Sequential Function Chart adalah:",
+    options:["Ladder Diagram (LD)","Structured Text (ST)","Sequential Function Chart (SFC)","Function Block Diagram (FBD)"],
+    answer:2,
+    explain:"SFC (Sequential Function Chart) adalah bahasa IEC 61131-3 yang dirancang khusus untuk menggambarkan sequential control dengan step, transisi kondisi, dan aksi."
+  },
+  {
+    q:"Electrical starter HANYA digunakan untuk:",
+    options:["Semua jenis aktuator","Motor listrik saja","Valve pneumatik dan solenoid","Hydraulic actuator"],
+    answer:1,
+    explain:"Starter hanya untuk MOTOR LISTRIK. Valve pneumatik, solenoid, servo valve, heater element dikontrol langsung oleh output PLC (4-20mA atau 24VDC) tanpa starter."
+  },
+  {
+    q:"Dalam hierarki otomasi kapal, IAS berada di level:",
+    options:["Level 0 (Field devices)","Level 1 (PLC)","Level 2 (IAS/SCADA)","Level 3 (Bridge)"],
+    answer:2,
+    explain:"IAS (Integrated Automation System) berada di Level 2 — sebagai sistem supervisory yang mengintegrasikan data dari semua PLC (Level 1) dan menampilkannya ke Bridge/ECR (Level 3)."
+  },
+  {
+    q:"Siklus kerja PLC (scan cycle) terdiri dari berapa langkah utama?",
+    options:["2 langkah: Input dan Output","3 langkah: Start, Run, Stop","4 langkah: Input Scan, Program Exec, Output Scan, Housekeeping","5 langkah sesuai SFC"],
+    answer:2,
+    explain:"Siklus PLC: (1) Input Scan — baca semua sensor, (2) Program Execution — jalankan program, (3) Output Scan — update aktuator, (4) Housekeeping — diagnostik + watchdog reset."
+  },
+  {
+    q:"Pada boiler startup, langkah PURGE dilakukan untuk:",
+    options:["Mengisi air feedwater ke drum","Membersihkan ruang bakar dari sisa gas sebelum ignition","Memanaskan bahan bakar HFO","Menguji flame detector"],
+    answer:1,
+    explain:"PURGE (pembersihan) dilakukan dengan menjalankan fan selama minimum 30 detik untuk membuang sisa gas yang mungkin tertinggal di ruang bakar — mencegah ledakan saat ignition."
+  },
+  {
+    q:"Jika boiler mengalami FLAME FAILURE saat running, respon BMS yang benar adalah:",
+    options:["Langsung nyalakan ulang (auto restart)","Kurangi bahan bakar ke 50%","Tutup semua fuel valve + LOCKOUT + kirim alarm ke IAS","Matikan hanya burner fan"],
+    answer:2,
+    explain:"BMS harus menutup SEMUA fuel valve, mengaktifkan LOCKOUT, dan mengirim alarm ke IAS. Reset manual oleh engineer wajib sebelum startup ulang — mencegah akumulasi gas berbahaya."
+  },
+  {
+    q:"Sistem kontrol mana yang TIDAK menggunakan PLC sebagai controller utama?",
+    options:["Boiler steam pressure","Purifier bowl speed","Dynamic Positioning (DP) System","Fresh water generator salinity"],
+    answer:2,
+    explain:"DP System menggunakan komputer dedicated berkinerja tinggi (Kongsberg, Rolls-Royce) — bukan PLC biasa. Komputer DP ini mengirimkan perintah ke PLC thruster untuk eksekusi."
+  },
+  {
+    q:"Metode starter yang paling hemat energi untuk motor thruster berdaya besar adalah:",
+    options:["DOL (Direct On Line)","Star-Delta","Soft Starter","VFD (Variable Frequency Drive)"],
+    answer:3,
+    explain:"VFD (Variable Frequency Drive) paling hemat energi karena dapat mengatur kecepatan motor secara tepat sesuai kebutuhan — menghindari pemborosan daya akibat motor berputar lebih cepat dari yang diperlukan."
+  }
+];
+
+let quizAnswers = new Array(quizData.length).fill(null);
+
+function renderQuiz(){
+  const c = document.getElementById('quizContainer');
+  c.innerHTML = quizData.map((q,i)=>`
+    <div class="quiz-card" style="animation-delay:${i*0.05}s">
+      <div class="quiz-q"><span>Q${i+1}.</span> ${q.q}</div>
+      <div class="quiz-options">
+        ${q.options.map((opt,j)=>`
+          <button class="quiz-opt" id="qopt_${i}_${j}" onclick="selectQuiz(${i},${j})">
+            <span style="color:var(--orange);margin-right:6px;">${String.fromCharCode(65+j)}.</span>${opt}
+          </button>
+        `).join('')}
+      </div>
+      <div class="quiz-feedback" id="qfb_${i}"></div>
+    </div>
+  `).join('');
+}
+
+function selectQuiz(qi, oi){
+  quizAnswers[qi] = oi;
+  // highlight selected
+  quizData[qi].options.forEach((_,j)=>{
+    const btn = document.getElementById(`qopt_${qi}_${j}`);
+    if(btn){
+      btn.classList.remove('correct','wrong');
+      btn.style.borderColor = j===oi ? 'var(--orange)' : '';
+      btn.style.color = j===oi ? 'var(--orange)' : '';
+      btn.style.background = j===oi ? 'rgba(255,107,0,0.1)' : '';
+    }
+  });
+}
+
+function checkAllQuiz(){
+  let correct = 0;
+  quizData.forEach((q,i)=>{
+    const ans = quizAnswers[i];
+    if(ans === null) return;
+    const correctBtn = document.getElementById(`qopt_${i}_${q.answer}`);
+    if(correctBtn) correctBtn.classList.add('correct');
+    if(ans !== q.answer){
+      const wrongBtn = document.getElementById(`qopt_${i}_${ans}`);
+      if(wrongBtn) wrongBtn.classList.add('wrong');
+    } else {
+      correct++;
+    }
+    const fb = document.getElementById(`qfb_${i}`);
+    if(fb){
+      fb.className = `quiz-feedback show ${ans===q.answer?'ok':'nope'}`;
+      fb.textContent = (ans===q.answer ? '✓ BENAR! ' : '✗ SALAH. ') + q.explain;
+    }
+  });
+  const answered = quizAnswers.filter(a=>a!==null).length;
+  document.getElementById('quizScore').textContent = `Skor: ${correct}/${answered} (${Math.round(correct/quizData.length*100)}%)`;
+}
+
+function resetQuiz(){
+  quizAnswers = new Array(quizData.length).fill(null);
+  renderQuiz();
+  document.getElementById('quizScore').textContent = '';
+}
+
+// ============================================================
+// DRAG AND DROP
+// ============================================================
+const boilerSteps = [
+  {id:'dnd_e', text:'MAIN FUEL OPEN'},
+  {id:'dnd_b', text:'START FAN'},
+  {id:'dnd_c', text:'PILOT IGNITION'},
+  {id:'dnd_a', text:'PRE-PURGE (30s)'},
+  {id:'dnd_d', text:'FLAME DETECT'},
+];
+const correctOrder = ['dnd_a','dnd_b','dnd_c','dnd_d','dnd_e'];
+
+let dragItem = null;
+
+function renderDnd(){
+  const source = document.getElementById('dndSource');
+  const target = document.getElementById('dndTarget');
+  const shuffled = [...boilerSteps].sort(()=>Math.random()-0.5);
+  source.innerHTML = shuffled.map(s=>`
+    <div class="dnd-item" draggable="true" id="${s.id}" 
+      ondragstart="dragStart(event)" ondragend="dragEnd(event)"
+      ontouchstart="touchStart(event)" ontouchmove="touchMove(event)" ontouchend="touchEnd(event)">
+      ${s.text}
+    </div>
+  `).join('');
+  target.innerHTML = '';
+  source.ondragover = e=>{e.preventDefault();};
+  source.ondrop = e=>{e.preventDefault(); if(dragItem) source.appendChild(dragItem);};
+  target.ondragover = e=>{e.preventDefault();};
+  target.ondrop = e=>{e.preventDefault(); if(dragItem) target.appendChild(dragItem);};
+}
+
+function dragStart(e){ dragItem = e.target; e.target.classList.add('dragging'); }
+function dragEnd(e){ e.target.classList.remove('dragging'); dragItem = null; }
+
+// Touch support
+let touchEl = null, touchClone = null;
+function touchStart(e){
+  touchEl = e.target.closest('.dnd-item');
+  const rect = touchEl.getBoundingClientRect();
+  touchClone = touchEl.cloneNode(true);
+  touchClone.style.cssText = `position:fixed;opacity:0.8;pointer-events:none;z-index:9999;width:${rect.width}px;`;
+  document.body.appendChild(touchClone);
+  dragItem = touchEl;
+}
+function touchMove(e){
+  if(!touchClone) return;
+  e.preventDefault();
+  const t = e.touches[0];
+  touchClone.style.left = (t.clientX-50)+'px';
+  touchClone.style.top = (t.clientY-20)+'px';
+}
+function touchEnd(e){
+  if(touchClone){ document.body.removeChild(touchClone); touchClone = null; }
+  if(!touchEl) return;
+  const t = e.changedTouches[0];
+  const targetEl = document.getElementById('dndTarget');
+  const rect = targetEl.getBoundingClientRect();
+  if(t.clientX >= rect.left && t.clientX <= rect.right && t.clientY >= rect.top && t.clientY <= rect.bottom){
+    targetEl.appendChild(touchEl);
+  }
+  touchEl = null; dragItem = null;
+}
+
+function checkDnd(){
+  const target = document.getElementById('dndTarget');
+  const items = [...target.querySelectorAll('.dnd-item')].map(el=>el.id);
+  const res = document.getElementById('dndResult');
+  let correctCount = 0;
+  items.forEach((id,i)=>{ if(id === correctOrder[i]) correctCount++; });
+  if(items.length === 0){
+    res.textContent = '⚠ Belum ada langkah yang ditempatkan!';
+    res.style.color = 'var(--gold)';
+  } else if(JSON.stringify(items) === JSON.stringify(correctOrder)){
+    res.textContent = '✓ SEMPURNA! Urutan benar semua!';
+    res.style.color = 'var(--green)';
+    // highlight green
+    target.querySelectorAll('.dnd-item').forEach(el=>{ el.style.borderColor='var(--green)'; el.style.color='var(--green)'; });
+  } else {
+    res.textContent = `${correctCount}/${items.length} posisi benar. Coba lagi!`;
+    res.style.color = 'var(--gold)';
+  }
+}
+
+function resetDnd(){ renderDnd(); document.getElementById('dndResult').textContent=''; }
+
+// ============================================================
+// SIMULATOR — PURIFIER
+// ============================================================
+const simSequence = [
+  {id:'ss0', name:'IDLE',        action:'Semua sistem dalam kondisi idle. Menunggu perintah start.',              rpm:0,    duration:0},
+  {id:'ss1', name:'PRE-CHECK',   action:'[CHECK] Verifikasi level oil tank... OK\n[CHECK] Motor electrical... OK\n[CHECK] Solenoid valve... OK',  rpm:0,  duration:2000},
+  {id:'ss2', name:'FILL BOWL',   action:'[ACT] Buka fresh water valve...\n[TIMER] Mengisi bowl selama 30 detik...\n[OK] Bowl berhasil diisi.',    rpm:0,  duration:3000},
+  {id:'ss3', name:'ACCELERATE',  action:'[ACT] Motor ON — mengakselerasi bowl...\n[MONITOR] RPM meningkat...',   rpm:7200, duration:4000},
+  {id:'ss4', name:'FEED OIL',    action:'[CHECK] RPM = 7200 ✓\n[ACT] Buka oil feed valve...\n[OK] Separasi dimulai.', rpm:7200, duration:2000},
+  {id:'ss5', name:'RUNNING',     action:'[STATUS] Purifier berjalan normal\n[DATA] Separation efficiency: 98.7%\n[DATA] Back pressure: 1.8 bar', rpm:7200, duration:0},
+];
+
+let simState = 0, simRunning = false, simInterval = null, simRpmInterval = null;
+let currentRpm = 0, targetRpm = 0;
+
+function simStart(){
+  if(simRunning) return;
+  simRunning = true;
+  simState = 0;
+  document.getElementById('btnStart').disabled = true;
+  document.getElementById('btnStop').disabled = false;
+  document.getElementById('btnReset').disabled = true;
+  simLog('▸ Memulai startup sequence...','ok');
+  runSimStep(0);
+}
+
+function runSimStep(idx){
+  if(!simRunning || idx >= simSequence.length - 1) return;
+  const step = simSequence[idx];
+  
+  // Update step visuals
+  for(let i=0;i<simSequence.length;i++){
+    const el = document.getElementById(simSequence[i].id);
+    if(i < idx) el.className = 'sim-step done';
+    else if(i === idx) el.className = 'sim-step current';
+    else el.className = 'sim-step pending';
+  }
+  
+  // Log
+  step.action.split('\n').forEach(line=>{ if(line) simLog(line, line.startsWith('[ERR]')?'err':line.startsWith('[CHECK]')||line.startsWith('[DATA]')?'':'ok'); });
+  
+  // RPM animation
+  targetRpm = step.rpm;
+  animateRpm();
+  
+  if(step.duration > 0){
+    simInterval = setTimeout(()=>{ runSimStep(idx+1); }, step.duration);
+  } else if(idx === simSequence.length - 2){
+    // Running state
+    const el = document.getElementById(simSequence[idx+1].id);
+    el.className = 'sim-step current';
+    document.getElementById(simSequence[idx].id).className = 'sim-step done';
+    simLog('✓ Purifier berjalan normal — Operasi penuh!','ok');
+    simLog('[INFO] Ketik STOP untuk menghentikan mesin.','');
+  }
+}
+
+function animateRpm(){
+  if(simRpmInterval) clearInterval(simRpmInterval);
+  simRpmInterval = setInterval(()=>{
+    if(currentRpm < targetRpm) currentRpm = Math.min(currentRpm + 150, targetRpm);
+    else if(currentRpm > targetRpm) currentRpm = Math.max(currentRpm - 200, targetRpm);
+    document.getElementById('simRpm').textContent = currentRpm.toLocaleString();
+    if(currentRpm === targetRpm) clearInterval(simRpmInterval);
+  }, 100);
+}
+
+function simStop(){
+  simRunning = false;
+  if(simInterval) clearTimeout(simInterval);
+  simLog('■ EMERGENCY STOP diaktifkan!','err');
+  simLog('[SEQ] Menutup oil feed valve...','');
+  simLog('[SEQ] Menghentikan motor — deselerasi...','warn');
+  targetRpm = 0; animateRpm();
+  document.getElementById('btnStop').disabled = true;
+  document.getElementById('btnReset').disabled = false;
+  for(let i=0;i<simSequence.length;i++){
+    document.getElementById(simSequence[i].id).className = 'sim-step pending';
+  }
+}
+
+function simReset(){
+  simRunning = false; simState = 0; currentRpm = 0; targetRpm = 0;
+  document.getElementById('simRpm').textContent = '0';
+  document.getElementById('btnStart').disabled = false;
+  document.getElementById('btnStop').disabled = true;
+  document.getElementById('btnReset').disabled = true;
+  for(let i=0;i<simSequence.length;i++){
+    document.getElementById(simSequence[i].id).className = 'sim-step pending';
+  }
+  const log = document.getElementById('simLog');
+  log.innerHTML = '<div style="color:var(--orange);">[SYS] Simulator direset. Siap untuk startup baru.</div>';
+}
+
+function simLog(msg, type=''){
+  const log = document.getElementById('simLog');
+  const div = document.createElement('div');
+  div.className = type === 'ok' ? 'log-ok' : type === 'warn' ? 'log-warn' : type === 'err' ? 'log-err' : '';
+  const now = new Date();
+  div.textContent = `[${now.toLocaleTimeString()}] ${msg}`;
+  log.appendChild(div);
+  log.scrollTop = log.scrollHeight;
+}
+
+// ============================================================
+// PLC CYCLE ANIMATION
+// ============================================================
+let cycleAnim = null, cycleIdx = 0;
+function startCycleAnim(){
+  stopCycleAnim();
+  cycleIdx = 0;
+  cycleAnim = setInterval(()=>{
+    [0,1,2,3].forEach(i=>{
+      const el = document.getElementById(`cyc${i}`);
+      if(el) el.classList.toggle('anim-active', i === cycleIdx);
+    });
+    cycleIdx = (cycleIdx + 1) % 4;
+  }, 700);
+}
+function stopCycleAnim(){
+  if(cycleAnim) clearInterval(cycleAnim);
+  [0,1,2,3].forEach(i=>{ const el = document.getElementById(`cyc${i}`); if(el) el.classList.remove('anim-active'); });
+}
+
+// ============================================================
+// GENERIC SEQ STEP HIGHLIGHT
+// ============================================================
+function highlightSeqStep(idx){
+  document.querySelectorAll('#genericFlow .seq-step').forEach((el,i)=>{
+    el.classList.toggle('active', i === idx);
+  });
+}
+function activateExSeq(e){
+  const step = e.currentTarget;
+  const parent = step.closest('.seq-flow');
+  parent.querySelectorAll('.seq-step').forEach(s=>s.classList.remove('active'));
+  step.classList.add('active');
+}
+
+// ============================================================
+// SFC ACTIVATE
+// ============================================================
+function activateSfc(el){
+  document.querySelectorAll('#sfcDiagram .sfc-step').forEach(s=>s.classList.remove('active'));
+  el.classList.add('active');
+}
+
+// ============================================================
+// ACCORDION
+// ============================================================
+function toggleCase(id){
+  const item = document.getElementById(id);
+  item.classList.toggle('open');
+}
+
+// ============================================================
+// MODAL
+// ============================================================
+function openModal(id){
+  const m = document.getElementById(id);
+  if(m) m.classList.add('open');
+}
+function closeModal(id){
+  const m = document.getElementById(id);
+  if(m) m.classList.remove('open');
+}
+// Close on overlay click
+document.querySelectorAll('.modal-overlay').forEach(m=>{
+  m.addEventListener('click',e=>{ if(e.target === m) m.classList.remove('open'); });
+});
+
+// ============================================================
+// SCROLL SPY
+// ============================================================
+const sectionIds = ['hero','sec-intro','sec-sequential','sec-compare','sec-plc-logic','sec-plc-cycle','sec-hierarchy','sec-examples','sec-hybrid','sec-actuator','sec-cases','sec-interactive','sec-summary','sec-references'];
+const navLinks = document.querySelectorAll('#sidebar nav a');
+const obs = new IntersectionObserver(entries=>{
+  entries.forEach(e=>{
+    if(e.isIntersecting){
+      const id = e.target.id;
+      navLinks.forEach(l=>l.classList.toggle('active', l.getAttribute('href')==='#'+id));
+    }
+  });
+},{rootMargin:'-20% 0px -60% 0px'});
+sectionIds.forEach(id=>{ const el = document.getElementById(id); if(el) obs.observe(el); });
+
+// ============================================================
+// INIT
+// ============================================================
+renderQuiz();
+renderDnd();
+</script>
+</body>
+</html>
